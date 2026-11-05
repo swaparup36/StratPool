@@ -45,4 +45,8 @@ Always inspect the existing codebase before introducing new dependencies or chan
 
 Focus only on the feature currently requested. Make the smallest clean implementation, explain important decisions briefly, and avoid unrelated refactoring. Make sure the code quality is good. Also maintain a log of every requested features and what changes you did for that in plan.md - also try to be as minimal and simple and short as possible while maintaining the logs. If you have generated few code for a feature and you are requested to do something on top of that and if that change is not huge then don't create another log for that.
 
+The format for the log should be -
+What was asked in a short
+- what you did (planning and actions)
+
 **Product principle:** StratPool connects trading intelligence with investment capital.

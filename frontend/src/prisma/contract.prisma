@@ -1,0 +1,123 @@
+// use prisma-8
+
+// user
+model User {
+  id        Int                @id @default(autoincrement())
+  email     String             @unique
+  firstName String
+  lastName  String
+  username  String             @unique
+  publicKey String             @unique
+  createdAt DateTime           @default(now()) @onCreate(now())
+  updatedAt temporal.UpdatedAt
+}
+
+// strategy
+enum TradingType {
+  SPOT
+  PERPETUALS
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum StrategyStatus {
+  DRAFT
+  PUBLISHED
+  PAUSED
+}
+
+model Strategy {
+  id          String         @id @onCreate(uuid())
+  strategistId String
+
+  name        String
+  description String
+
+  // Market information
+  chain       String
+  tradingType TradingType
+  tradingPair String
+  protocol    String
+  poolAddress String?
+
+  // Capital requirements
+  acceptedAssets String[]
+  minInvestment Numeric(36, 18)
+  maxInvestment Numeric(36, 18)?
+
+  riskLevel   RiskLevel
+
+  // React Flow graph stored as JSONB
+  graph       Json
+
+  graphVersion Int @default(1)
+
+  status      StrategyStatus @default(DRAFT)
+
+  createdAt   DateTime @default(now()) @onCreate(now())
+  updatedAt   temporal.UpdatedAt
+
+  strategist  User @relation(
+    fields: [strategistId],
+    references: [id]
+  )
+
+  @@index([strategistId])
+  @@index([chain, tradingType, tradingPair])
+  @@index([status])
+}
+
+// requirements
+enum DurationType {
+  FIXED
+  FLEXIBLE
+}
+
+enum DurationUnit {
+  DAYS
+  MONTHS
+}
+
+enum RequirementStatus {
+  OPEN
+  MATCHED
+  CLOSED
+}
+
+model InvestorRequirement {
+  id         String @id @onCreate(uuid())
+  investorId String
+
+  // Investment preferences
+  amount String
+  asset  String
+  chain  String
+
+  // Market preferences
+  tradingType  TradingType
+  tradingPairs String[]
+  riskLevel    RiskLevel
+
+  // Investment duration
+  durationType  DurationType
+  durationValue Int?
+  durationUnit  DurationUnit?
+
+  status RequirementStatus @default(OPEN)
+
+  createdAt DateTime @default(now()) @onCreate(now())
+  updatedAt temporal.UpdatedAt
+
+  investor User @relation(
+    fields: [investorId],
+    references: [id]
+  )
+
+  @@index([investorId])
+  @@index([status])
+  @@index([chain, tradingType])
+}
