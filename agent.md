@@ -2,7 +2,7 @@
 
 ## What is StratPool?
 
-StratPool is a DeFi strategy marketplace that connects people who create trading strategies with investors who provide capital.
+StratPool is a DeFi strategy marketplace that connects people who create trading strategies with investors who provide capital. Basically strategists can create strategy and post it on the app and then the investors comes with capital and posts their requirements and out strategy matching engine matches the best available strategy according to the investor's need. Then it creates the triggered based automation using ChainLink to execute the strategy on investor's deposited funds. Now the creator of the strategy earn comission on every profit making trades that has uses their strategy and that ratings of that strategy goes up, if any strategy is found to be loss making then the rating of it goes down and creator of that strategy earn no rewards.
 
 - **Strategists** create and publish trading strategies.
 - **Investors** deposit assets into vaults and choose strategies that match their requirements.
@@ -28,6 +28,18 @@ Always inspect the existing codebase before introducing new dependencies or chan
 - Keep strategy execution logic and sensitive strategy definitions private.
 - Do not expose internal strategy graphs through public APIs.
 - Do not introduce blockchain integrations, vault execution, or unnecessary infrastructure unless explicitly requested.
+
+## Architecture
+
+- Frontend - Next.js
+- Backend - Next backend
+- Database - PostgreSQL
+- Cache & Enquing - Redis
+- Strategy Validator Engine - Validate a strategy when created
+- Strategy Matching Engine - Matches the best strategy to use based on the investor's requirements
+- Chain Link CRE - To set the trigger and automation for the execution of matched strategy
+- StratPool Escrow and Vault Contracts - To maintain transparency with strategist about their comission when someone profits on their trade with their created strategy and vault contract to store deposits of inverstors.
+
 
 ## Working Style
 
