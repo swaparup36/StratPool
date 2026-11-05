@@ -1,4 +1,6 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useState, type FormEvent, type ReactNode } from "react";
 import { DemoForm } from "./demo-form";
 import { Icon } from "./icon";
 import { Logo } from "./ui";
@@ -10,14 +12,50 @@ export function AuthCard({
   intro,
   submit,
   success,
+  onSubmit,
+  error,
   children,
 }: {
   title: string;
   intro?: ReactNode;
   submit: string;
-  success: string;
+  success?: string;
+  onSubmit?: (form: FormData) => Promise<void>;
+  error?: string | null;
   children: ReactNode;
 }) {
+  const [busy, setBusy] = useState(false);
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!onSubmit) return;
+    const form = new FormData(e.currentTarget);
+    setBusy(true);
+    try {
+      await onSubmit(form);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const body = (
+    <>
+      <div className="grid border-t">{children}</div>
+      {error && (
+        <p role="alert" className="border-b px-8 py-3 text-center text-sm text-red-500">
+          {error}
+        </p>
+      )}
+      <button
+        className="flex h-14 w-full items-center justify-center gap-1.5 bg-accent text-on-accent transition-colors hover:bg-accent-hover disabled:opacity-60"
+        type="submit"
+        disabled={busy}
+      >
+        {busy ? "Please wait…" : submit} <Icon name="right" />
+      </button>
+    </>
+  );
+
   return (
     <section className="bg-grid grid min-h-[calc(100svh-230px)] place-items-center px-6 py-16">
       <div className="w-full max-w-[460px] overflow-hidden rounded-xl border bg-surface">
@@ -26,15 +64,14 @@ export function AuthCard({
           <h1 className="mt-4 text-[24px] tracking-[-.02em]">{title}</h1>
           {intro && <p className="mt-1 text-sm text-subtle [&_a]:text-accent [&_a]:underline">{intro}</p>}
         </div>
-        <DemoForm successClass="border-t px-8 pt-6 pb-8 text-center text-muted" success={success}>
-          <div className="grid border-t">{children}</div>
-          <button
-            className="flex h-14 w-full items-center justify-center gap-1.5 bg-accent text-on-accent transition-colors hover:bg-accent-hover"
-            type="submit"
-          >
-            {submit} <Icon name="right" />
-          </button>
-        </DemoForm>
+
+        {onSubmit ? (
+          <form onSubmit={handleSubmit}>{body}</form>
+        ) : (
+          <DemoForm successClass="border-t px-8 pt-6 pb-8 text-center text-muted" success={success ?? ""}>
+            {body}
+          </DemoForm>
+        )}
       </div>
     </section>
   );
@@ -74,22 +111,5 @@ export function NameFields() {
       <Field name="first_name" label="First name" autoComplete="given-name" />
       <Field name="last_name" label="Last name" autoComplete="family-name" />
     </div>
-  );
-}
-
-export function SourceField() {
-  return (
-    <label className="block border-b">
-      <span className="sr-only">How did you hear about us?</span>
-      <select className={`${control} invalid:text-subtle [&>option]:bg-surface`} name="source" required defaultValue="">
-        <option value="" disabled>
-          How did you hear about us?
-        </option>
-        <option>Search engine</option>
-        <option>Social media</option>
-        <option>A friend or colleague</option>
-        <option>Other</option>
-      </select>
-    </label>
   );
 }

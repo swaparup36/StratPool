@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useAuth } from "./auth-provider";
 import { Icon } from "./icon";
 import { ThemeSwitch } from "./theme-switch";
 import { buttonClass, Logo } from "./ui";
@@ -19,6 +20,7 @@ const navLink = "flex items-center rounded-full p-2.5 transition-colors hover:bg
 export function Header() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { status, logout } = useAuth();
 
   // Client-side navigation keeps this component mounted, so close the menu explicitly.
   useEffect(() => setMenuOpen(false), [pathname]);
@@ -57,12 +59,20 @@ export function Header() {
           <div className="col-span-2 flex justify-center">
             <ThemeSwitch />
           </div>
-          <Link className={buttonClass("secondary", "sm")} href="/sign-in">
-            Log In
-          </Link>
-          <Link className={buttonClass("primary", "sm")} href="/sign-up">
-            Get Started Today
-          </Link>
+          {status === "authenticated" ? (
+            <button className={`${buttonClass("secondary", "sm")} col-span-2`} type="button" onClick={logout}>
+              Log Out
+            </button>
+          ) : (
+            <>
+              <Link className={buttonClass("secondary", "sm")} href="/sign-in">
+                Log In
+              </Link>
+              <Link className={buttonClass("primary", "sm")} href="/sign-up">
+                Get Started Today
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>

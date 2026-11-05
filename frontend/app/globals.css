@@ -124,6 +124,18 @@
   }
 }
 
+/* RainbowKit's modals. Its theme can't set font weights or swap the icon, and these rules
+   must stay outside @layer to beat its unlayered CSS. Colors live in auth-provider.tsx. */
+[data-rk][role="dialog"] * {
+  font-weight: 400;
+}
+[data-rk][role="dialog"] :is(#rk_connect_title, [role="img"] + *) {
+  font-weight: 500;
+}
+[data-rk][role="dialog"]:has([data-testid="rk-auth-message-button"]) [role="img"] {
+  display: none;
+}
+
 /* Article text comes from plain tags in content/, so it is styled by element here. */
 @layer components {
   .prose {

@@ -2,12 +2,12 @@
 
 // user
 model User {
-  id        Int                @id @default(autoincrement())
+  id        String             @id @onCreate(uuid())
   email     String             @unique
   firstName String
   lastName  String
   username  String             @unique
-  publicKey String             @unique
+  address   String             @unique
   createdAt DateTime           @default(now()) @onCreate(now())
   updatedAt temporal.UpdatedAt
 }

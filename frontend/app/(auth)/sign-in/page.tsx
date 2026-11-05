@@ -1,22 +1,22 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { AuthCard, Field } from "@/components/forms";
+'use client';
 
-export const metadata: Metadata = { title: "Log in", description: "Log in to your Acme account." };
+import { useRouter } from 'next/navigation';
+import { AuthCard, Field } from '@/components/forms';
+import { useWalletAuth } from '@/hooks/use-wallet-auth';
 
-export default function SignInPage() {
+export default function LoginPage() {
+  const router = useRouter();
+  const { start, error } = useWalletAuth('login', () => router.replace('/'));
+
   return (
     <AuthCard
-      title="Log in to your account"
-      intro={
-        <>
-          Don&apos;t have an account? <Link href="/sign-up">Sign up</Link> for a free trial.
-        </>
-      }
-      submit="Log In"
-      success="Check your inbox for a login link."
+      title="Log in"
+      submit="Continue"
+      onSubmit={start}
+      error={error}
+      intro={<>New here? <a href="/sign-up">Create an account</a></>}
     >
-      <Field name="email" label="Email address" type="email" autoComplete="email" />
+      <Field name="email" label="Email" type="email" autoComplete="email" />
     </AuthCard>
   );
 }
