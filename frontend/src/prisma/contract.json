@@ -12,6 +12,10 @@
       "model": "Strategy",
       "namespace": "public"
     },
+    "StrategyAcceptedAsset": {
+      "model": "StrategyAcceptedAsset",
+      "namespace": "public"
+    },
     "User": {
       "model": "User",
       "namespace": "public"
@@ -322,16 +326,6 @@
           },
           "Strategy": {
             "fields": {
-              "acceptedAssets": {
-                "many": {
-                  "elementNullable": false
-                },
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                }
-              },
               "chain": {
                 "nullable": false,
                 "type": {
@@ -375,28 +369,6 @@
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
-                }
-              },
-              "maxInvestment": {
-                "nullable": true,
-                "type": {
-                  "codecId": "pg/numeric@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "precision": 36,
-                    "scale": 18
-                  }
-                }
-              },
-              "minInvestment": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/numeric@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "precision": 36,
-                    "scale": 18
-                  }
                 }
               },
               "name": {
@@ -485,6 +457,21 @@
               }
             },
             "relations": {
+              "acceptedAssets": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "strategyId"
+                  ]
+                },
+                "to": {
+                  "model": "StrategyAcceptedAsset",
+                  "namespace": "public"
+                }
+              },
               "strategist": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -504,9 +491,6 @@
             },
             "storage": {
               "fields": {
-                "acceptedAssets": {
-                  "column": "acceptedAssets"
-                },
                 "chain": {
                   "column": "chain"
                 },
@@ -524,12 +508,6 @@
                 },
                 "id": {
                   "column": "id"
-                },
-                "maxInvestment": {
-                  "column": "maxInvestment"
-                },
-                "minInvestment": {
-                  "column": "minInvestment"
                 },
                 "name": {
                   "column": "name"
@@ -561,6 +539,122 @@
               },
               "namespaceId": "public",
               "table": "Strategy"
+            }
+          },
+          "StrategyAcceptedAsset": {
+            "fields": {
+              "chainId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "decimals": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "maxInvestment": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 36,
+                    "scale": 18
+                  }
+                }
+              },
+              "minInvestment": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 36,
+                    "scale": 18
+                  }
+                }
+              },
+              "strategyId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "symbol": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "tokenAddress": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "strategy": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "strategyId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Strategy",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "chainId": {
+                  "column": "chainId"
+                },
+                "decimals": {
+                  "column": "decimals"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "maxInvestment": {
+                  "column": "maxInvestment"
+                },
+                "minInvestment": {
+                  "column": "minInvestment"
+                },
+                "strategyId": {
+                  "column": "strategyId"
+                },
+                "symbol": {
+                  "column": "symbol"
+                },
+                "tokenAddress": {
+                  "column": "tokenAddress"
+                }
+              },
+              "namespaceId": "public",
+              "table": "StrategyAcceptedAsset"
             }
           },
           "User": {
@@ -879,11 +973,6 @@
             "Strategy": {
               "checks": [
                 {
-                  "expression": "array_position(\"acceptedAssets\", NULL) IS NULL",
-                  "name": "Strategy_acceptedAssets_elem_not_null_991d700e",
-                  "prefix": "Strategy_acceptedAssets_elem_not_null"
-                },
-                {
                   "expression": "\"riskLevel\" IN ('LOW', 'MEDIUM', 'HIGH')",
                   "name": "Strategy_riskLevel_check_da6cb930",
                   "prefix": "Strategy_riskLevel_check"
@@ -900,14 +989,6 @@
                 }
               ],
               "columns": {
-                "acceptedAssets": {
-                  "codecId": "pg/text@1",
-                  "dataType": "pg/text",
-                  "many": {
-                    "elementNullable": false
-                  },
-                  "nullable": false
-                },
                 "chain": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -948,24 +1029,6 @@
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
                   "nullable": false
-                },
-                "maxInvestment": {
-                  "codecId": "pg/numeric@1",
-                  "dataType": "pg/numeric",
-                  "nullable": true,
-                  "typeParams": {
-                    "precision": 36,
-                    "scale": 18
-                  }
-                },
-                "minInvestment": {
-                  "codecId": "pg/numeric@1",
-                  "dataType": "pg/numeric",
-                  "nullable": false,
-                  "typeParams": {
-                    "precision": 36,
-                    "scale": 18
-                  }
                 },
                 "name": {
                   "codecId": "pg/text@1",
@@ -1093,6 +1156,103 @@
                 ]
               },
               "uniques": []
+            },
+            "StrategyAcceptedAsset": {
+              "columns": {
+                "chainId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "decimals": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "maxInvestment": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 36,
+                    "scale": 18
+                  }
+                },
+                "minInvestment": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 36,
+                    "scale": 18
+                  }
+                },
+                "strategyId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "symbol": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "tokenAddress": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "StrategyAcceptedAsset_strategyId_idx_65b7cc99"
+                  },
+                  "source": {
+                    "columns": [
+                      "strategyId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "StrategyAcceptedAsset"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Strategy"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "strategyId"
+                  ],
+                  "name": "StrategyAcceptedAsset_strategyId_idx_65b7cc99",
+                  "prefix": "StrategyAcceptedAsset_strategyId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "strategyId",
+                    "chainId",
+                    "tokenAddress"
+                  ]
+                }
+              ]
             },
             "User": {
               "columns": {
@@ -1225,10 +1385,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "5efc4d6a306f076dfb086b3daf9e96a69be58dfeffbb3941fd78689b9d8e5950"
+    "storageHash": "487fb928bb27977405d1cdda8e965032fe47aa3818e89358d7abb8faf0a48971"
   },
   "execution": {
-    "executionHash": "dc3a355defa083e949665001278e0a2eb8f27bb2f5df675658c666414ad84d63",
+    "executionHash": "d528d8a73cd08326b8ce4da0cbed23b3ab49b8a3a880334a0026dfdf6527cdd7",
     "mutations": {
       "defaults": [
         {
@@ -1320,6 +1480,17 @@
           "ref": {
             "entry": "Strategy",
             "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "StrategyAcceptedAsset",
+            "field": "id",
             "namespace": "public"
           }
         },

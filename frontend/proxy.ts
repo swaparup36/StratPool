@@ -8,4 +8,4 @@ export async function proxy(req: NextRequest) {
   return NextResponse.redirect(new URL('/sign-in', req.url));
 }
 
-export const config = { matcher: ['/app', '/app/:path*'] };
+export const config = { matcher: ['/strategies/:path*'] };

@@ -15,7 +15,7 @@ import {
 import { createSiweMessage } from 'viem/siwe';
 import { config } from '@/wagmi';
 
-// Site tokens from globals.css, so the wallet modals follow the theme switch too.
+// site tokens from globals.css, so the wallet modals follow the theme switch too
 const base = lightTheme();
 const walletTheme: typeof base = {
   ...base,
@@ -107,7 +107,7 @@ export function AuthProvider({
         signOut: async () => {
           await fetch('/api/auth/logout', { method: 'POST' });
           setStatus('unauthenticated');
-          if (/^\/app(\/|$)/.test(window.location.pathname)) window.location.assign('/');
+          if (/^\/strategies(\/|$)/.test(window.location.pathname)) window.location.assign('/');
         },
       }),
     []

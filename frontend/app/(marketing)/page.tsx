@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MatchMock, OutcomeMock, PublishMock, StrategyViewMock, VaultMock } from "@/components/mocks";
+import { PublishLink } from "@/components/publish-link";
 import { CtaCenter, Faq, FeatureCards, FeatureRow, PlainColumns } from "@/components/sections";
 import { buttonClass, SectionHead } from "@/components/ui";
 
@@ -27,9 +28,7 @@ export default function HomePage() {
           </div>
           <div className={`relative pb-21 before:top-0 ${heroRule}`}>
             <div className="relative mx-auto grid max-w-[392px] border-x">
-              <Link className={`${heroAction} bg-surface hover:bg-surface-2`} href="/sign-up">
-                Publish a Strategy
-              </Link>
+              <PublishLink className={`${heroAction} bg-surface hover:bg-surface-2`} />
               <Link className={`${heroAction} bg-accent text-on-accent hover:bg-accent-hover`} href="/sign-up">
                 Find a Strategy
               </Link>
@@ -133,9 +132,7 @@ export default function HomePage() {
           <Link className={buttonClass()} href="/sign-up">
             Find a Strategy
           </Link>
-          <Link className={buttonClass("secondary")} href="/sign-up">
-            Publish a Strategy
-          </Link>
+          <PublishLink className={buttonClass("secondary")} />
         </CtaCenter>
       </section>
 

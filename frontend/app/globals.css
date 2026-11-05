@@ -136,6 +136,25 @@
   display: none;
 }
 
+/* The strategy canvas follows the theme switch through React Flow's own variables. */
+.react-flow {
+  --xy-background-pattern-color: var(--surface-2);
+  --xy-edge-stroke: var(--text-3);
+  --xy-edge-stroke-selected: var(--accent);
+  --xy-connectionline-stroke: var(--accent);
+  --xy-handle-background-color: var(--accent);
+  --xy-handle-border-color: var(--surface-1);
+  --xy-minimap-background-color: var(--surface-1);
+  --xy-minimap-mask-background-color: color-mix(in srgb, var(--surface-3) 60%, transparent);
+  --xy-minimap-node-background-color: var(--text-3);
+  --xy-controls-button-background-color: var(--surface-1);
+  --xy-controls-button-background-color-hover: var(--surface-2);
+  --xy-controls-button-color: var(--text-1);
+  --xy-controls-button-color-hover: var(--text-1);
+  --xy-controls-button-border-color: var(--border);
+  --xy-attribution-background-color: transparent;
+}
+
 /* Article text comes from plain tags in content/, so it is styled by element here. */
 @layer components {
   .prose {

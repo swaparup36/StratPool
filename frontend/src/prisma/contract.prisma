@@ -45,9 +45,7 @@ model Strategy {
   poolAddress String?
 
   // Capital requirements
-  acceptedAssets String[]
-  minInvestment Numeric(36, 18)
-  maxInvestment Numeric(36, 18)?
+  acceptedAssets StrategyAcceptedAsset[]
 
   riskLevel   RiskLevel
 
@@ -69,6 +67,23 @@ model Strategy {
   @@index([strategistId])
   @@index([chain, tradingType, tradingPair])
   @@index([status])
+}
+
+model StrategyAcceptedAsset {
+  id String @id @onCreate(uuid())
+  strategyId String
+
+  chainId    Int
+  tokenAddress String
+  symbol     String
+  decimals   Int
+
+  minInvestment Numeric(36, 18)
+  maxInvestment Numeric(36, 18)?
+
+  strategy Strategy @relation(fields: [strategyId], references: [id])
+
+  @@unique([strategyId, chainId, tokenAddress])
 }
 
 // requirements
