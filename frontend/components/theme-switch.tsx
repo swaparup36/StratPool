@@ -31,8 +31,10 @@ export function ThemeSwitch() {
   }
 
   return (
-    <div className="flex items-center gap-3 text-sm text-subtle">
-      <span id="theme-label">Appearance</span>
+    <div className="flex items-center text-sm text-subtle">
+      <span className="sr-only" id="theme-label">
+        Appearance
+      </span>
       <div className="flex rounded-full border p-[3px]" role="group" aria-labelledby="theme-label">
         {options.map(({ value, icon }) => (
           <button

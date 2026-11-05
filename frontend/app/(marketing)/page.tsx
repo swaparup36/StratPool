@@ -1,31 +1,7 @@
 import Link from "next/link";
-import type { IconName } from "@/components/icon";
-import { ChatMock, NewTaskMock, PeopleMock, SecureMock } from "@/components/mocks";
-import {
-  CtaBand,
-  CtaCenter,
-  Faq,
-  FeatureCards,
-  FeatureRow,
-  LogoCloud,
-  PlainColumns,
-  Plans,
-  Testimonials,
-} from "@/components/sections";
-import { Avatars, ButtonRow, IconChip, SectionHead, sectionText, sectionTitle, StartButtons, Tag } from "@/components/ui";
-import { homeTestimonials } from "@/content/site";
-
-const productivity: [IconName, string, string][] = [
-  ["mail", "Focused Messaging", "Threads keep each topic separate, so decisions are quick and easy to revisit later."],
-  ["zap", "Task Automation", "Assign, remind and update automatically to keep projects on schedule and in scope."],
-  ["file", "Shared Files", "Every document and asset stays linked to its project and available to the right people."],
-  ["smile", "Realtime Insights", "See how work is moving with up-to-the-minute data and clear visuals."],
-  ["command", "Smart Notifications", "Hear about what matters, and mute the rest with flexible notification settings."],
-  ["message", "Team Analytics", "Understand communication patterns and find ways to improve your workflow."],
-];
-
-const ctaTitle = "Give your team more focused hours";
-const ctaText = "Write in threads, stay in flow, and skip the unnecessary video calls.";
+import { MatchMock, OutcomeMock, PublishMock, StrategyViewMock, VaultMock } from "@/components/mocks";
+import { CtaCenter, Faq, FeatureCards, FeatureRow, PlainColumns } from "@/components/sections";
+import { buttonClass, SectionHead } from "@/components/ui";
 
 const heroRule = "before:absolute before:left-1/2 before:w-screen before:-translate-x-1/2 before:border-t";
 const heroAction = "grid h-14 place-items-center transition-colors";
@@ -37,154 +13,141 @@ export default function HomePage() {
         <div className="relative z-1 mx-auto max-w-[1200px] border-x text-center">
           <div className={`relative pt-9 before:top-20 ${heroRule}`}>
             <div className="relative inline-flex h-11 items-center gap-2 border bg-surface px-[18px] text-[13px] text-subtle">
-              <Avatars ids={[1, 2, 7]} /> 1,254 happy customers
+              The DeFi strategy marketplace
             </div>
           </div>
           <div className="px-6 pt-12 pb-14">
             <h1 className="mx-auto max-w-[960px] bg-linear-[100deg,var(--text-3)_0%,var(--text-1)_48%] bg-clip-text text-[clamp(32px,7vw,64px)] leading-none tracking-[-.034em] text-transparent">
-              Team Communication Built for Moving Fast
+              Where Trading Intelligence Meets Investment Capital
             </h1>
             <p className="mx-auto mt-4 max-w-[680px] text-[clamp(16px,2vw,18px)] text-subtle">
-              Acme is a self-hosted workspace for chat, tasks and files. Replace this paragraph with your own pitch; it
-              wraps gracefully at any length.
+              Strategists publish trading strategies. Investors set their requirements. StratPool matches the two and
+              automates execution on deposited funds.
             </p>
           </div>
           <div className={`relative pb-21 before:top-0 ${heroRule}`}>
             <div className="relative mx-auto grid max-w-[392px] border-x">
-              <Link className={`${heroAction} bg-surface hover:bg-surface-2`} href="/request-demo">
-                Request Demo
+              <Link className={`${heroAction} bg-surface hover:bg-surface-2`} href="/sign-up">
+                Publish a Strategy
               </Link>
               <Link className={`${heroAction} bg-accent text-on-accent hover:bg-accent-hover`} href="/sign-up">
-                Get Started for Free
+                Find a Strategy
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      <LogoCloud />
-
-      <section className="page-container section-y">
+      <section className="page-container section-y" id="how-it-works">
         <SectionHead
-          tag="Communication"
-          title="Conversations That Move Work Forward"
-          text="Keep decisions, context and progress in one place, so nobody has to chase an update."
-        />
-        <div className="grid gap-6">
-          <FeatureRow
-            title="Real-Time Messaging"
-            text="Messages arrive the moment they are sent, keeping everyone aligned and able to respond as soon as plans change."
-            list={["Instant message delivery", "Presence indicators for the whole team", "Group and private conversations"]}
-          >
-            <ChatMock />
-          </FeatureRow>
-          <FeatureRow
-            title="Integrated Task Management"
-            text="Turn any discussion into a task and keep the conversation attached, so the reasoning behind the work is never lost."
-            flip
-          >
-            <NewTaskMock />
-          </FeatureRow>
-          <FeatureRow
-            title="Secure Communication Channels"
-            text="Protect sensitive conversations with strong encryption and clear access controls, without slowing the team down."
-            list={["End-to-end encryption", "Secure file sharing and storage", "Built for common compliance standards"]}
-          >
-            <SecureMock />
-          </FeatureRow>
-        </div>
-      </section>
-
-      <section className="page-container section-b">
-        <SectionHead
-          tag="Management"
-          title="Agile Planning Without the Overhead"
-          text="Lightweight project tools for small teams focused on shipping product quickly."
-        />
-        <FeatureCards
-          items={[
-            ["trend", "Sprint Planning", "Plan each iteration, set clear goals and keep the scope honest."],
-            ["grid", "Kanban Boards", "Follow work from idea to done on boards you can tailor to your process."],
-            ["target", "Task Prioritization", "Rank work by urgency and impact so the team always knows what is next."],
-            ["users", "Collaborative Task Boards", "Update tasks together in real time and keep ownership clear."],
-            ["layers", "Backlog Management", "Capture ideas and user stories in a tidy backlog ready for planning."],
-            ["bars", "Burndown Charts", "Spot slipping timelines early with simple, readable progress charts."],
-          ]}
-        />
-        <ButtonRow center className="mt-8">
-          <StartButtons more="/features/collaborative-task-boards" />
-        </ButtonRow>
-      </section>
-
-      <CtaBand title={ctaTitle} text={ctaText} />
-
-      <section className="page-container section-y">
-        <SectionHead
-          tag="Collaboration"
-          title="Everything Your Team Shares, in One Place"
-          text="Files, tasks and conversations work together, so projects run smoothly from kickoff to launch."
+          tag="How it works"
+          title="From Requirements to Automated Execution"
+          text="One marketplace, three steps, and a clear role for everyone involved."
         />
         <PlainColumns
           items={[
-            ["message", "Real-time Messaging", "Talk through problems as they come up and keep everyone informed."],
-            ["file", "File Sharing", "Share documents and images where the work happens, always easy to find."],
-            ["check", "Task Management", "Assign owners, track progress and hold one source of truth for the project."],
+            ["layers", "Strategists publish", "Define the chain, trading pair, pool and accepted assets. Every strategy is validated when it is created."],
+            ["target", "Investors get matched", "Set your chain, trading type, exact pair and risk. The matching engine finds the best available strategy."],
+            ["zap", "Chainlink automates", "Triggers are set up to execute the matched strategy on the funds in your vault."],
           ]}
         />
-        <PeopleMock />
+        <MatchMock />
       </section>
 
-      <section className="page-container section-b">
-        <div className="mx-auto grid max-w-[1056px] gap-8 lg:grid-cols-[5fr_6fr] lg:gap-14">
-          <div className="lg:sticky lg:top-[104px] lg:self-start">
-            <Tag>Productivity</Tag>
-            <h2 className={`mt-2 ${sectionTitle}`}>Help Your Team Do Its Best Work</h2>
-            <p className={`mt-2 ${sectionText}`}>
-              Fewer interruptions, clearer priorities, and more time spent building and shipping.
-            </p>
-            <ButtonRow className="mt-6">
-              <StartButtons more="/features/realtime-insights" />
-            </ButtonRow>
-          </div>
-          <div className="grid gap-6">
-            {productivity.map(([icon, title, text]) => (
-              <article className="flex gap-4 rounded-xl border bg-surface-2 p-5" key={title}>
-                <IconChip name={icon} />
-                <div>
-                  <h3>{title}</h3>
-                  <p className="mt-1 text-sm text-subtle">{text}</p>
-                </div>
-              </article>
-            ))}
-          </div>
+      <section className="page-container section-b scroll-mt-24" id="strategists">
+        <SectionHead
+          tag="For strategists"
+          title="Turn Your Trading Edge Into Income"
+          text="Publish what you know, keep how it works to yourself, and earn when it performs."
+        />
+        <div className="grid gap-6">
+          <FeatureRow
+            title="Publish Once, Reach Every Matching Investor"
+            text="Describe where your strategy runs and what it accepts. The matching engine puts it in front of investors looking for exactly that."
+            list={[
+              "Validated automatically on creation",
+              "Exact duplicates are rejected",
+              "Reuse your logic across other pairs and pools",
+            ]}
+          >
+            <PublishMock />
+          </FeatureRow>
+          <FeatureRow
+            title="Paid for Performance"
+            text="You earn commission on every profitable trade that uses your strategy, and each one lifts its rating. Loss-making strategies lose rating and earn nothing."
+            list={["Commission tracked through escrow contracts", "Ratings that reflect real results"]}
+            flip
+          >
+            <OutcomeMock />
+          </FeatureRow>
         </div>
       </section>
 
-      <section className="page-container">
-        <CtaCenter title={ctaTitle} text={ctaText}>
-          <StartButtons more="/pricing" />
-        </CtaCenter>
+      <section className="page-container section-b scroll-mt-24" id="investors">
+        <SectionHead
+          tag="For investors"
+          title="Put Capital Behind a Strategy That Fits"
+          text="Say what you want to trade and let the matching engine find the strategy that fits."
+        />
+        <div className="grid gap-6">
+          <FeatureRow
+            title="Deposit Into a Vault, on the Right Chain"
+            text="Your funds sit in a vault contract, and the strategy runs on them automatically. If your asset is not compatible with the strategy, we ask you to bridge it to the right chain first."
+            list={["Choose your preferred chain and exact pair", "Compatibility checked before you commit"]}
+          >
+            <VaultMock />
+          </FeatureRow>
+          <FeatureRow
+            title="See the Results, Not the Recipe"
+            text="Every strategy shows its description, rating and relevant metrics, so you can judge it for yourself. Its internal logic stays private to protect the strategist who built it."
+            flip
+          >
+            <StrategyViewMock />
+          </FeatureRow>
+        </div>
       </section>
-
-      <Testimonials title="What our clients say" items={homeTestimonials} />
 
       <section className="page-container section-b">
         <SectionHead
-          tag="Pricing"
-          title="Simple pricing for your team"
-          text="Pick the plan that fits today and change it whenever you need to."
+          tag="Under the hood"
+          title="Incentives Both Sides Can Trust"
+          text="The rules are the same for everyone, and strategists only win when investors do."
         />
-        <Plans />
+        <FeatureCards
+          items={[
+            ["check", "Strategy Validation", "Each new strategy is checked at creation, before any investor can be matched to it."],
+            ["target", "Strategy Matching", "Requirements are compared against live listings to find the best available fit."],
+            ["zap", "Chainlink Automation", "Trigger-based execution follows the strategy, with no manual trading on your part."],
+            ["layers", "Vault Contracts", "Investor deposits are held in dedicated vault contracts that strategies execute on."],
+            ["file", "Commission Escrow", "Escrow contracts keep commission transparent whenever a trade makes a profit."],
+            ["lock", "Private Strategy Logic", "Internal strategy flows are never shown to investors or exposed through public APIs."],
+          ]}
+        />
+      </section>
+
+      <section className="page-container">
+        <CtaCenter
+          title="Bring a strategy, or bring the capital"
+          text="Create an account and take your side of the marketplace."
+        >
+          <Link className={buttonClass()} href="/sign-up">
+            Find a Strategy
+          </Link>
+          <Link className={buttonClass("secondary")} href="/sign-up">
+            Publish a Strategy
+          </Link>
+        </CtaCenter>
       </section>
 
       <Faq
+        spaced
         items={[
-          ["Who is Acme built for?", "Small and mid-sized teams who want one calm place for conversation, planning and files."],
-          ["How is our data protected?", "Data is encrypted in transit and at rest, and access is controlled by roles you define."],
-          ["Can we adapt it to our workflow?", "Yes. Boards, notifications and permissions can all be tailored to the way your team works."],
-          ["Do you offer ongoing support?", "Every plan includes support, with faster response times and a dedicated contact on higher plans."],
-          ["How do we get started?", "Create a free account in a couple of minutes, or request a demo and we will walk you through it."],
-          ["Can we change plans later?", "Absolutely. You can upgrade or downgrade at any time from your account settings."],
+          ["Can investors see how a strategy works?", "No. Investors see its description and relevant metrics, but never its internal flow or node graph."],
+          ["How do strategists earn?", "They earn commission on every profitable trade that uses their strategy. Loss-making strategies earn no rewards."],
+          ["How are strategies rated?", "A strategy's rating rises when its trades make a profit and falls when it is found to be loss-making."],
+          ["What if my asset is on another chain?", "Your deposit must be compatible with the selected strategy, so we will ask you to bridge it to that chain first."],
+          ["Can I publish the same strategy twice?", "Not as an exact duplicate. You can publish the same logic for different trading pairs or pools."],
+          ["Are returns guaranteed?", "No. Trading digital assets carries risk, including loss of your deposit, and a good rating does not promise future results."],
         ]}
       />
     </>

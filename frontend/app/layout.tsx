@@ -12,8 +12,9 @@ const geist = localFont({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Acme — Team communication for fast-moving teams", template: "%s — Acme" },
-  description: "Acme brings messaging, tasks and files together so your team can ship faster.",
+  title: { default: "StratPool — The DeFi strategy marketplace", template: "%s — StratPool" },
+  description:
+    "StratPool connects strategists who publish DeFi trading strategies with investors who provide the capital, then automates execution.",
 };
 
 // Runs before first paint so a saved theme never flashes the wrong colors.

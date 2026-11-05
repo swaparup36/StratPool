@@ -1,6 +1,6 @@
 // Product illustrations built from HTML so they follow the theme.
 // Replace them with next/image screenshots when you have real ones.
-import { Icon } from "./icon";
+import { Icon, type IconName } from "./icon";
 import { Avatar, Avatars } from "./ui";
 
 type Task = { label: string; title: string; text?: string; people: number[]; comments: number; files: number };
@@ -34,59 +34,106 @@ export function TaskCard({
   );
 }
 
-export function ChatMock() {
-  const bubble = "w-fit rounded-[14px] px-3.5 py-2 text-[15px]";
+// StratPool landing illustrations. All values are examples, not real listings or results.
+function Card({ title, badge, children }: { title: string; badge?: string; children: React.ReactNode }) {
+  return (
+    <div className="w-full max-w-80 rounded-lg border bg-surface-2 p-4 text-left">
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h4 className="text-[15px]">{title}</h4>
+        {badge && <span className="rounded-full bg-accent/22 px-2.5 py-px text-xs text-accent">{badge}</span>}
+      </div>
+      <dl className="grid gap-2 text-[13px]">{children}</dl>
+    </div>
+  );
+}
+
+function Field({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between gap-4">
+      <dt className="text-subtle">{label}</dt>
+      <dd>{value}</dd>
+    </div>
+  );
+}
+
+function Note({ icon, children }: { icon: IconName; children: React.ReactNode }) {
+  return (
+    <p className="mt-3 flex items-start gap-2 rounded-md bg-surface-3 px-3 py-2 text-[13px]">
+      <Icon name={icon} className="mt-[3px] flex-none" /> {children}
+    </p>
+  );
+}
+
+export function MatchMock() {
+  return (
+    <div className="bg-grid grid content-center place-items-center gap-4 rounded-xl border p-6 md:min-h-[400px]" aria-hidden="true">
+      <div className="grid w-full items-center justify-items-center gap-4 md:grid-cols-[1fr_auto_1fr]">
+        <div className="grid w-full justify-items-center md:justify-items-end">
+          <Card title="Investor requirements">
+            <Field label="Chain" value="Arbitrum" />
+            <Field label="Trading type" value="Spot" />
+            <Field label="Pair" value="ETH/USDC" />
+            <Field label="Risk" value="Moderate" />
+          </Card>
+        </div>
+        <Icon name="right" className="rotate-90 text-2xl text-accent md:rotate-0" />
+        <div className="grid w-full justify-items-center md:justify-items-start">
+          <Card title="ETH/USDC Momentum" badge="Best match">
+            <Field label="Chain" value="Arbitrum" />
+            <Field label="Trading type" value="Spot" />
+            <Field label="Accepts" value="USDC, ETH" />
+            <Field label="Rating" value="4.6 / 5" />
+          </Card>
+        </div>
+      </div>
+      <span className="text-[13px] text-subtle">Illustrative example</span>
+    </div>
+  );
+}
+
+export function PublishMock() {
+  return (
+    <Card title="New strategy">
+      <Field label="Chain" value="Arbitrum" />
+      <Field label="Pair" value="ETH/USDC" />
+      <Field label="Pool" value="ETH/USDC 0.05%" />
+      <Field label="Accepted assets" value="USDC, ETH" />
+      <Note icon="check">Validated, no exact duplicate found</Note>
+    </Card>
+  );
+}
+
+export function OutcomeMock() {
   return (
     <div className="grid w-full max-w-80 gap-3">
-      <span className={`${bubble} justify-self-end rounded-br-[3px] bg-accent text-on-accent`}>
-        how does the new flow look?
-      </span>
-      <span className={`${bubble} rounded-bl-[3px] bg-surface-3`}>really good, let&apos;s ship it!</span>
+      <Card title="Profitable trade" badge="Rating up">
+        <Field label="Strategist commission" value="Earned" />
+      </Card>
+      <Card title="Loss-making strategy" badge="Rating down">
+        <Field label="Strategist commission" value="None" />
+      </Card>
     </div>
   );
 }
 
-export function NewTaskMock() {
+export function VaultMock() {
   return (
-    <div className="grid w-full justify-items-center">
-      <div className="mb-3 flex h-9 w-full max-w-[260px] items-center justify-center gap-1 rounded-md border text-sm text-accent">
-        <Icon name="plus" /> Add new task
-      </div>
-      <TaskCard
-        label="Copy"
-        title="Launch announcement"
-        text="Draft the announcement post covering the key benefits of the new release and how to get started."
-        people={[1, 2, 3]}
-        comments={12}
-        files={3}
-      />
-    </div>
+    <Card title="Deposit to vault">
+      <Field label="Your asset" value="USDC on Ethereum" />
+      <Field label="Strategy runs on" value="Arbitrum" />
+      <Note icon="alert">Bridge USDC to Arbitrum to continue</Note>
+    </Card>
   );
 }
 
-export function SecureMock() {
+export function StrategyViewMock() {
   return (
-    <div className="inline-flex items-center gap-2 rounded-lg bg-surface-3 px-4 py-2.5">
-      <Icon name="lock" /> End-to-end encrypted backup
-    </div>
-  );
-}
-
-export function PeopleMock() {
-  const avatar = "size-16 rounded-full border-4 md:size-[88px]";
-  return (
-    <div className="bg-grid grid min-h-[340px] place-items-center rounded-xl border md:min-h-[460px]" aria-hidden="true">
-      <div className="grid justify-items-center gap-4">
-        <div className="relative rounded-lg border bg-surface-2 px-5 py-2 text-center text-lg leading-[1.3]">
-          <small className="block text-[15px] text-subtle">Sarah</small>Click to follow
-        </div>
-        <div className="flex">
-          <Avatar id={1} className={`${avatar} border-surface`} />
-          <Avatar id={2} className={`${avatar} relative -ml-5 scale-115 border-accent`} />
-          <Avatar id={3} className={`${avatar} -ml-5 border-surface`} />
-        </div>
-      </div>
-    </div>
+    <Card title="ETH/USDC Momentum">
+      <Field label="Rating" value="4.6 / 5" />
+      <Field label="Risk" value="Moderate" />
+      <Field label="Pair" value="ETH/USDC" />
+      <Note icon="lock">Internal strategy flow is private</Note>
+    </Card>
   );
 }
 

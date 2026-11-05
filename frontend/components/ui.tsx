@@ -19,11 +19,11 @@ export const linkArrow = "inline-flex items-center gap-1 text-sm text-accent";
 
 export function Logo() {
   return (
-    <Link className="inline-flex items-center gap-2 text-2xl font-semibold tracking-[-.8px]" href="/" aria-label="Acme home">
+    <Link className="inline-flex items-center gap-2 text-2xl font-semibold tracking-[-.8px]" href="/" aria-label="StratPool home">
       <svg className="size-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M12 2 2 22h6l4-9 4 9h6z" />
+        <path d="M3 14h5v8H3zM9.5 8h5v14h-5zM16 2h5v20h-5z" />
       </svg>
-      Acme
+      StratPool
     </Link>
   );
 }

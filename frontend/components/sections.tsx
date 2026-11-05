@@ -186,7 +186,7 @@ export function Plans() {
 
 export function Faq({ items, spaced }: { items: [string, string][]; spaced?: boolean }) {
   return (
-    <section className={`page-container ${spaced ? "section-y" : "section-b"}`}>
+    <section className={`page-container scroll-mt-16 ${spaced ? "section-y" : "section-b"}`} id="faq">
       <SectionHead tag="FAQs" title="Frequently asked questions" text="Quick answers from our team." />
       <div className={`${smallGrid} mx-auto max-w-[1056px] gap-10`}>
         {items.map(([question, answer]) => (

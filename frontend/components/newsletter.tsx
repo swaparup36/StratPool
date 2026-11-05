@@ -9,7 +9,7 @@ export function Newsletter() {
           <h2 id="newsletter-title" className="text-[24px] tracking-[-.02em]">
             Stay in the loop
           </h2>
-          <p className="mt-1 text-subtle">Product updates and practical teamwork tips, once a month.</p>
+          <p className="mt-1 text-subtle">Product updates and new marketplace features, once a month.</p>
         </div>
         <DemoForm
           className="flex w-full max-w-[420px] items-center rounded-full border bg-surface p-1 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent"
