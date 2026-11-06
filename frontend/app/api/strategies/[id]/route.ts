@@ -65,6 +65,7 @@ export async function DELETE(_req: Request, { params }: Context) {
     const deleted = await db.transaction(async (tx) => {
       const owned = await tx.orm.public.Strategy.where({ id, strategistId }).select("id").first();
       if (!owned) return false;
+      await tx.orm.public.BacktestResult.where({ strategyId: id }).deleteAll();
       await tx.orm.public.StrategyAcceptedAsset.where({ strategyId: id }).deleteAll();
       await tx.orm.public.Strategy.where({ id, strategistId }).delete();
       return true;

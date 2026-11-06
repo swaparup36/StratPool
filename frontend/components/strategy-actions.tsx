@@ -55,7 +55,7 @@ function DeleteDialog({ id, name, onClose }: { id: string; name: string; onClose
               Delete strategy?
             </h2>
             <p className="text-sm break-words text-muted" id={`delete-text-${id}`}>
-              <span className="text-fg">{name}</span> and its accepted assets will be permanently deleted. This can&apos;t be undone.
+              <span className="text-fg">{name}</span>, its accepted assets and its backtest results will be permanently deleted. This can&apos;t be undone.
             </p>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { db } from "@/src/prisma/db";
 import { failure, readStrategy, unauthorized } from "./shared";
+import { strategyVerificationQueue } from "@/lib/queues/strategy-verification";
 
 export async function POST(req: Request) {
   try {
@@ -17,6 +18,24 @@ export async function POST(req: Request) {
       // Nested, so a failed asset can't leave a strategy behind without its assets.
       acceptedAssets: (assets) => assets.create(parsed.assets),
     });
+
+    // enque the strategy for verification
+    await strategyVerificationQueue.add(
+      "verify-strategy",
+      {
+        strategyId: created.id,
+      },
+      {
+        jobId: `strategy-verification-${created.id}`,
+        attempts: 3,
+        backoff: {
+          type: "exponential",
+          delay: 5000,
+        },
+        removeOnComplete: true,
+        removeOnFail: false,
+      }
+    );
 
     return NextResponse.json({ success: true, data: created }, { status: 201 });
   } catch (error) {

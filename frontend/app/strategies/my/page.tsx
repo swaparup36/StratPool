@@ -14,7 +14,7 @@ export default async function MyStrategiesPage() {
   if (!session.userId) redirect("/sign-in");
 
   const strategies = await db.orm.public.Strategy.where({ strategistId: session.userId })
-    .select("id", "name", "description", "chain", "tradingType", "tradingPair", "protocol", "riskLevel", "status")
+    .select("id", "name", "description", "chain", "tradingType", "tradingPair", "protocol", "riskLevel", "status", "isVerified")
     .include("acceptedAssets", (assets) => assets.select("id", "symbol", "decimals", "minInvestment", "maxInvestment"))
     .orderBy((s) => s.updatedAt.desc())
     .all();
@@ -38,6 +38,7 @@ export default async function MyStrategiesPage() {
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="min-w-0 text-lg break-words">{strategy.name}</h2>
                   <Tag>{strategy.status === "PUBLISHED" ? "Published" : "Draft"}</Tag>
+                  <Tag>{strategy.isVerified ? "Verified" : "Not verified"}</Tag>
                 </div>
                 <p className="text-sm break-words text-muted">{strategy.description}</p>
               </div>

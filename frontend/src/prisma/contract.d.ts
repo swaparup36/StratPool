@@ -23,7 +23,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'485db03caabda72ed41e72c1c5b6d665c59a01173a169de74bf3770ecd8da2b0'>;
+  StorageHashBase<'226b77b1ada4c75851ee7bf4cef78f8cfd5ad6d4d7ef8113131ee311695e303a'>;
 export type ExecutionHash =
   ExecutionHashBase<'bef5eb6ddb197d0a7bc1be0f4a26395bb31111244098c2043aac825e33404a32'>;
 export type ProfileHash =
@@ -428,6 +428,7 @@ export namespace Models {
     graph: FieldOutputTypes['public']['Strategy']['graph'];
     graphVersion: FieldOutputTypes['public']['Strategy']['graphVersion'];
     id: FieldOutputTypes['public']['Strategy']['id'];
+    isVerified: FieldOutputTypes['public']['Strategy']['isVerified'];
     name: FieldOutputTypes['public']['Strategy']['name'];
     poolAddress: FieldOutputTypes['public']['Strategy']['poolAddress'];
     protocol: FieldOutputTypes['public']['Strategy']['protocol'];
@@ -765,6 +766,16 @@ type ContractBase = Omit<
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly isVerified: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
                   readonly many: false;
                 };
                 readonly name: {
@@ -1279,6 +1290,10 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly isVerified: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
               readonly name: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -1352,6 +1367,7 @@ type ContractBase = Omit<
                 readonly graph: { readonly column: 'graph' };
                 readonly graphVersion: { readonly column: 'graphVersion' };
                 readonly id: { readonly column: 'id' };
+                readonly isVerified: { readonly column: 'isVerified' };
                 readonly name: { readonly column: 'name' };
                 readonly poolAddress: { readonly column: 'poolAddress' };
                 readonly protocol: { readonly column: 'protocol' };

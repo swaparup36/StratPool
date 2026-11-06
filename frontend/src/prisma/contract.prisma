@@ -55,6 +55,7 @@ model Strategy {
   graphVersion Int @default(1)
 
   status      StrategyStatus @default(DRAFT)
+  isVerified Boolean @default(false)
 
   createdAt   DateTime @default(now()) @onCreate(now())
   updatedAt   temporal.UpdatedAt
