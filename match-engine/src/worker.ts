@@ -35,4 +35,8 @@ export const worker = new Worker(
       url: config.redis_url,
     },
   },
-);
+).on("closing", async () => {
+  await worker.close();
+  await worker.disconnect();
+  return;
+});
