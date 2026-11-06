@@ -2,22 +2,26 @@
 
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { isAddressEqual, parseEventLogs, type Address, type BaseError } from "viem";
-import { useAccount, useSwitchChain, useWriteContract } from "wagmi";
-import { waitForTransactionReceipt } from "wagmi/actions";
-import { sepolia } from "wagmi/chains";
+import { useAccount, useWriteContract } from "wagmi";
 import { AuthCard } from "@/components/forms";
-import { VAULT_DEPLOYER_ADDRESS, vaultDeployerAbi } from "@/lib/contracts";
-import { config } from "@/wagmi";
+import { useChainVault } from "@/hooks/use-chain-vault";
+import { vaultDeployerAbi } from "@/lib/contracts";
+import { waitForTx } from "@/wagmi";
 
 export function CreateVault({ owner }: { owner: Address }) {
   const router = useRouter();
-  const { address, chainId } = useAccount();
+  const { address, chain } = useAccount();
+  const { deployer, vault } = useChainVault(owner, chain?.id);
   const { openConnectModal } = useConnectModal();
-  const { switchChainAsync } = useSwitchChain();
   const { writeContractAsync } = useWriteContract();
   const [error, setError] = useState<string | null>(null);
+
+  // already has a vault on the selected chain
+  useEffect(() => {
+    if (vault) router.replace(`/investors/${vault}/dashboard`);
+  }, [vault, router]);
 
   async function create() {
     setError(null);
@@ -30,17 +34,20 @@ export function CreateVault({ owner }: { owner: Address }) {
       setError(`Switch your wallet to ${owner}, the one linked to your account`);
       return;
     }
+    if (!chain || !deployer) {
+      setError("Pick a network where StratPool is available");
+      return;
+    }
 
     try {
-      if (chainId !== sepolia.id) await switchChainAsync({ chainId: sepolia.id });
       const hash = await writeContractAsync({
-        address: VAULT_DEPLOYER_ADDRESS,
+        address: deployer,
         abi: vaultDeployerAbi,
         functionName: "createVault",
-        chainId: sepolia.id,
+        chainId: chain.id,
       });
-      // throws if the transaction reverted, so the event is always there
-      const { logs } = await waitForTransactionReceipt(config, { hash, chainId: sepolia.id });
+      // a reverted transaction throws here, so the event is always there
+      const { logs } = await waitForTx(hash, chain.id);
       const [created] = parseEventLogs({ abi: vaultDeployerAbi, logs, eventName: "VaultCreated" });
       router.replace(`/investors/${created.args.vault}/dashboard`);
     } catch (e) {
@@ -48,10 +55,18 @@ export function CreateVault({ owner }: { owner: Address }) {
     }
   }
 
+  const network = !address
+    ? "Connect your wallet and pick a network in the navbar."
+    : !chain
+      ? "Your wallet is on an unsupported network. Pick another in the navbar."
+      : deployer
+        ? `Creating it takes one transaction on ${chain.name}.`
+        : `StratPool isn't available on ${chain.name} yet. Pick another network in the navbar.`;
+
   return (
     <AuthCard title="Create your vault" submit={address ? "Create vault" : "Connect wallet"} onSubmit={create} error={error}>
       <p className="border-b px-8 py-4 text-center text-sm text-muted">
-        Your vault holds your deposits and belongs only to your wallet. Creating it takes one transaction on Sepolia.
+        Your vault holds your deposits and belongs only to your wallet. {network}
       </p>
     </AuthCard>
   );

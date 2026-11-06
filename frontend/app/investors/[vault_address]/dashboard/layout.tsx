@@ -1,7 +1,7 @@
-import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { Sidebar } from "@/components/sidebar";
-import { getInvestor } from "@/lib/investor";
+import { VaultNetworkGuard } from "@/components/vault-network-guard";
+import { getInvestorVault } from "@/lib/investor";
 
 export default async function InvestorDashboardLayout({
   params,
@@ -11,9 +11,7 @@ export default async function InvestorDashboardLayout({
   children: ReactNode;
 }) {
   const { vault_address } = await params;
-  const { vault } = await getInvestor();
-  // A dashboard is only for the vault's own investor.
-  if (vault?.toLowerCase() !== vault_address.toLowerCase()) redirect("/investors");
+  const { owner, chainId } = await getInvestorVault(vault_address);
 
   const dashboard = `/investors/${vault_address}/dashboard`;
   return (
@@ -25,7 +23,11 @@ export default async function InvestorDashboardLayout({
           { href: `${dashboard}/invest`, label: "Invest", icon: "target" },
         ]}
       />
-      <div className="min-w-0 flex-1">{children}</div>
+      <div className="min-w-0 flex-1">
+        <VaultNetworkGuard owner={owner} vaultChainId={chainId}>
+          {children}
+        </VaultNetworkGuard>
+      </div>
     </div>
   );
 }

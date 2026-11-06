@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "./auth-provider";
+import { ChainSelector } from "./chain-selector";
 import { Icon } from "./icon";
 import { ThemeSwitch } from "./theme-switch";
 import { buttonClass, Logo } from "./ui";
@@ -59,6 +60,7 @@ export function Header() {
           <div className="col-span-2 flex justify-center">
             <ThemeSwitch />
           </div>
+          {pathname.startsWith("/investors") && <ChainSelector />}
           {status === "authenticated" ? (
             <button className={`${buttonClass("secondary", "sm")} col-span-2`} type="button" onClick={logout}>
               Log Out

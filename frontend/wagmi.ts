@@ -1,5 +1,7 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { http } from 'wagmi';
+import type { Hash } from 'viem';
+import { http, type Config } from 'wagmi';
+import { waitForTransactionReceipt } from 'wagmi/actions';
 import { mainnet, base, arbitrum, sepolia } from 'wagmi/chains';
 import { SEPOLIA_RPC_URL } from '@/lib/contracts';
 
@@ -14,3 +16,6 @@ export const config = getDefaultConfig({
     [arbitrum.id]: http(),
   },
 });
+
+// Throws if the transaction reverted.
+export const waitForTx = (hash: Hash, chainId: number) => waitForTransactionReceipt(config as Config, { hash, chainId });

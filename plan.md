@@ -34,6 +34,10 @@ Investor onboarding:
 - `create-vault` connects the wallet, switches to Sepolia, sends `createVault` and redirects using the `VaultCreated` event; it rejects a wallet other than the account's.
 - Dashboard layout only serves the investor's own vault; Vault and Invest pages are blank for now. `strategy-sidebar` became a shared `Sidebar`.
 
+Vault page and per-chain vaults
+- `components/vault-panel.tsx`: balances (in vault, locked commission, withdrawable, in wallet) and deposit/withdraw for ETH and ERC-20 (approval handled); tokens are added by address and remembered per browser, because the vault can't list its tokens.
+- Added a navbar chain selector on `/investors` pages (RainbowKit chain modal). Vault creation and the dashboard follow the wallet's chain through `VAULT_DEPLOYERS` in `lib/contracts.ts`; chains with no deployer show "not available" (only Sepolia is deployed).
+
 
 
 
