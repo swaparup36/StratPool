@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getSession } from "@/lib/session";
 import { db } from "@/src/prisma/db";
 import { failure, readStrategy, unauthorized } from "../shared";
+import { strategyVerificationQueue } from "@/lib/queues/strategy-verification";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -30,6 +31,28 @@ export async function PUT(req: Request, { params }: Context) {
       await tx.orm.public.StrategyAcceptedAsset.createAll(parsed.assets.map((asset) => ({ ...asset, strategyId: id })));
       return true;
     });
+
+    // enque the strategy for verification if it was saved successfully
+    if (saved) {
+      const enqueueResult = await strategyVerificationQueue.add(
+        "verify-strategy",
+        {
+          strategyId: id,
+        },
+        {
+          jobId: `strategy-verification-${id}`,
+          attempts: 3,
+          backoff: {
+            type: "exponential",
+            delay: 5000,
+          },
+          removeOnComplete: true,
+          removeOnFail: false,
+        }
+      );
+
+      console.log(`Enqueued strategy verification job for strategy ${id} with job ID ${enqueueResult.id}`);
+    }
 
     return saved ? NextResponse.json({ success: true }) : notFound();
   } catch (error) {

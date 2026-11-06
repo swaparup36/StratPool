@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     });
 
     // enque the strategy for verification
-    await strategyVerificationQueue.add(
+    const enqueueResult = await strategyVerificationQueue.add(
       "verify-strategy",
       {
         strategyId: created.id,
@@ -36,6 +36,8 @@ export async function POST(req: Request) {
         removeOnFail: false,
       }
     );
+
+    console.log(`Enqueued strategy verification job for strategy ${created.id} with job ID ${enqueueResult.id}`);
 
     return NextResponse.json({ success: true, data: created }, { status: 201 });
   } catch (error) {

@@ -14,6 +14,46 @@ contract TestToken is ERC20("Test", "TST") {
     }
 }
 
+// Holds ERC20 allowances and enforces the router's allowance and expiry, like the real Permit2.
+contract MockPermit2 {
+    mapping(address owner => mapping(address token => mapping(address spender => uint256))) public allowance;
+    mapping(address owner => mapping(address token => mapping(address spender => uint48))) public expiry;
+
+    function approve(address token, address spender, uint160 amount, uint48 expiration) external {
+        allowance[msg.sender][token][spender] = amount;
+        expiry[msg.sender][token][spender] = expiration;
+    }
+
+    function transferFrom(address from, address to, uint160 amount, address token) external {
+        require(block.timestamp <= expiry[from][token][msg.sender], "expired");
+        allowance[from][token][msg.sender] -= amount;
+        ERC20(token).transferFrom(from, to, amount);
+    }
+}
+
+contract MockRouter {
+    address constant PERMIT2 = 0x000000000022D473030F116dDEE9F6B43aC78BA3;
+
+    receive() external payable {}
+
+    function swap(address tokenIn, uint256 amountIn, address tokenOut, uint256 amountOut) external payable {
+        if (tokenIn != address(0)) MockPermit2(PERMIT2).transferFrom(msg.sender, address(this), uint160(amountIn), tokenIn);
+        if (tokenOut == address(0)) payable(msg.sender).transfer(amountOut);
+        else TestToken(tokenOut).mint(msg.sender, amountOut);
+    }
+
+    function fail() external pure {
+        revert("no liquidity");
+    }
+}
+
+// A strategist that can't receive ETH.
+contract RejectsETH {
+    receive() external payable {
+        revert("no");
+    }
+}
+
 contract StratPoolTest is Test {
     address investor = makeAddr("investor");
     address forwarder = makeAddr("forwarder");
@@ -25,9 +65,16 @@ contract StratPoolTest is Test {
     Vault vault;
     TestToken token;
     address tokenAddr;
+    MockRouter router;
+    TestToken usdc;
 
     function setUp() public {
-        manager = new CommissionManager(forwarder, workflowOwner);
+        router = new MockRouter();
+        vm.etch(0x000000000022D473030F116dDEE9F6B43aC78BA3, address(new MockPermit2()).code);
+        usdc = new TestToken();
+        vm.deal(address(router), 100 ether);
+
+        manager = new CommissionManager(forwarder, workflowOwner, address(router));
         deployer = manager.vaultDeployer();
 
         vm.prank(investor);
@@ -263,7 +310,7 @@ contract StratPoolTest is Test {
     }
 
     function test_OnReport_RevertsForUnknownAction() public {
-        bytes memory report = abi.encode(block.chainid, uint8(2), investor, strategist, tokenAddr, 1);
+        bytes memory report = abi.encode(block.chainid, uint8(3), investor, strategist, tokenAddr, 1);
 
         vm.prank(forwarder);
         vm.expectRevert();
@@ -295,6 +342,236 @@ contract StratPoolTest is Test {
         manager.onReport(metadata, zeroAmount);
 
         vm.stopPrank();
+    }
+
+    // swaps
+
+    function _swapReport(address tokenIn, uint256 amountIn, address tokenOut, uint256 minOut, bytes memory routerData)
+        internal
+        view
+        returns (bytes memory)
+    {
+        return _swapReportFor(strategist, tokenIn, amountIn, tokenOut, minOut, routerData);
+    }
+
+    function _swapReportFor(
+        address to,
+        address tokenIn,
+        uint256 amountIn,
+        address tokenOut,
+        uint256 minOut,
+        bytes memory routerData
+    ) internal view returns (bytes memory) {
+        return abi.encode(
+            block.chainid, CommissionManager.Action.Swap, investor, to, tokenIn, amountIn, tokenOut, minOut, routerData
+        );
+    }
+
+    function _swapData(address tokenIn, uint256 spend, address tokenOut, uint256 out) internal pure returns (bytes memory) {
+        return abi.encodeCall(MockRouter.swap, (tokenIn, spend, tokenOut, out));
+    }
+
+    function test_Swap_TradesTokensThroughRouterAndClearsApproval() public {
+        _deliver(_swapReport(tokenAddr, 10 ether, address(usdc), 25, _swapData(tokenAddr, 10 ether, address(usdc), 30)));
+
+        assertEq(token.balanceOf(address(vault)), 90 ether);
+        assertEq(usdc.balanceOf(address(vault)), 30);
+        assertEq(token.allowance(address(vault), vault.PERMIT2()), 0);
+    }
+
+    function test_Swap_TradesNativeETHBothWays() public {
+        _deliver(_swapReport(address(0), 1 ether, address(usdc), 30, _swapData(address(0), 0, address(usdc), 30)));
+        assertEq(address(vault).balance, 9 ether);
+        assertEq(usdc.balanceOf(address(vault)), 30);
+
+        // Bought 30 for 1 ETH and sold them for 2 ETH: 10% of the 1 ETH profit goes to the strategist.
+        _deliver(_swapReport(address(usdc), 30, address(0), 2 ether, _swapData(address(usdc), 30, address(0), 2 ether)));
+        assertEq(address(vault).balance, 10.9 ether);
+        assertEq(strategist.balance, 0.1 ether);
+    }
+
+    function test_Swap_RevertsBelowMinimumOutput() public {
+        bytes memory report = _swapReport(tokenAddr, 1 ether, address(usdc), 31, _swapData(tokenAddr, 1 ether, address(usdc), 30));
+
+        vm.prank(forwarder);
+        vm.expectRevert(Vault.InsufficientOutput.selector);
+        manager.onReport(_metadata(workflowOwner), report);
+    }
+
+    function test_Swap_CannotSpendLockedCommission() public {
+        _lock(tokenAddr, 60 ether);
+        bytes memory report =
+            _swapReport(tokenAddr, 40 ether + 1, address(usdc), 0, _swapData(tokenAddr, 40 ether + 1, address(usdc), 0));
+
+        vm.prank(forwarder);
+        vm.expectRevert(Vault.InsufficientUnlockedBalance.selector);
+        manager.onReport(_metadata(workflowOwner), report);
+    }
+
+    function test_Swap_RouterCannotPullMoreThanAmountIn() public {
+        bytes memory report = _swapReport(tokenAddr, 1 ether, address(usdc), 0, _swapData(tokenAddr, 2 ether, address(usdc), 1));
+
+        vm.prank(forwarder);
+        vm.expectRevert(Vault.SwapFailed.selector);
+        manager.onReport(_metadata(workflowOwner), report);
+    }
+
+    function test_Swap_RevertsWhenRouterFails() public {
+        bytes memory report = _swapReport(tokenAddr, 1 ether, address(usdc), 0, abi.encodeCall(MockRouter.fail, ()));
+
+        vm.prank(forwarder);
+        vm.expectRevert(Vault.SwapFailed.selector);
+        manager.onReport(_metadata(workflowOwner), report);
+    }
+
+    function test_Swap_RevertsForOtherChainAndWorkflowOwner() public {
+        bytes memory wrongChain = abi.encode(
+            block.chainid + 1, CommissionManager.Action.Swap, investor, strategist, tokenAddr, 1, address(usdc), 0, bytes("")
+        );
+        bytes memory valid = _swapReport(tokenAddr, 1, address(usdc), 0, _swapData(tokenAddr, 1, address(usdc), 0));
+
+        vm.startPrank(forwarder);
+        vm.expectRevert(CommissionManager.InvalidChain.selector);
+        manager.onReport(_metadata(workflowOwner), wrongChain);
+
+        vm.expectRevert(CommissionManager.InvalidWorkflowOwner.selector);
+        manager.onReport(_metadata(investor), valid);
+        vm.stopPrank();
+    }
+
+    // profit and commission. token is the quote the vault starts in, usdc stands in for the asset it trades.
+
+    function _trade(address tokenIn, uint256 spend, address tokenOut, uint256 out) internal {
+        _deliver(_swapReport(tokenIn, spend, tokenOut, 0, _swapData(tokenIn, spend, tokenOut, out)));
+    }
+
+    function test_Commission_PaysTenPercentOfProfit() public {
+        _trade(tokenAddr, 10 ether, address(usdc), 5);
+        assertEq(token.balanceOf(strategist), 0, "opening a position pays nothing");
+
+        _trade(address(usdc), 5, tokenAddr, 12 ether);
+
+        assertEq(token.balanceOf(strategist), 0.2 ether);
+        assertEq(token.balanceOf(address(vault)), 100 ether - 10 ether + 12 ether - 0.2 ether);
+        assertEq(vault.lockedCommission(tokenAddr), 0);
+    }
+
+    function test_Commission_PaysNothingOnLossOrBreakEven() public {
+        _trade(tokenAddr, 10 ether, address(usdc), 5);
+        _trade(address(usdc), 5, tokenAddr, 8 ether);
+        assertEq(token.balanceOf(strategist), 0, "loss");
+        assertEq(token.balanceOf(address(vault)), 98 ether);
+
+        _trade(tokenAddr, 10 ether, address(usdc), 5);
+        _trade(address(usdc), 5, tokenAddr, 10 ether);
+        assertEq(token.balanceOf(strategist), 0, "break-even");
+
+        (uint256 held, uint256 cost) = manager.positions(address(vault), strategist, address(usdc), tokenAddr);
+        assertEq(held, 0);
+        assertEq(cost, 0);
+    }
+
+    function test_Commission_LossIsNotCarriedIntoNextProfit() public {
+        _trade(tokenAddr, 10 ether, address(usdc), 5);
+        _trade(address(usdc), 5, tokenAddr, 8 ether);
+
+        _trade(tokenAddr, 10 ether, address(usdc), 5);
+        _trade(address(usdc), 5, tokenAddr, 11 ether);
+
+        assertEq(token.balanceOf(strategist), 0.1 ether);
+    }
+
+    function test_Commission_ChargesPartialSalesAgainstAverageCost() public {
+        _trade(tokenAddr, 10 ether, address(usdc), 10);
+        _trade(tokenAddr, 30 ether, address(usdc), 10);
+
+        // 20 held for 40: selling 5 costs 10, sold for 20.
+        _trade(address(usdc), 5, tokenAddr, 20 ether);
+        assertEq(token.balanceOf(strategist), 1 ether);
+
+        (uint256 held, uint256 cost) = manager.positions(address(vault), strategist, address(usdc), tokenAddr);
+        assertEq(held, 15);
+        assertEq(cost, 30 ether);
+    }
+
+    function test_Commission_OnlyTheBoughtPartOfASaleCounts() public {
+        usdc.mint(address(vault), 90);
+        _trade(tokenAddr, 10 ether, address(usdc), 10);
+
+        // Sold 100 for 200 ether. The 10 bought for 10 ether fetched 20 ether, a 10 ether profit.
+        // The other 90 were the investor's own, so they open a position instead of earning commission.
+        _trade(address(usdc), 100, tokenAddr, 200 ether);
+        assertEq(token.balanceOf(strategist), 1 ether);
+
+        (uint256 held, uint256 cost) = manager.positions(address(vault), strategist, tokenAddr, address(usdc));
+        assertEq(held, 180 ether);
+        assertEq(cost, 90);
+    }
+
+    function test_Commission_CountsBuyingBackMoreOfTheStartingAsset() public {
+        usdc.mint(address(vault), 10 ether);
+
+        // Sold 10 of its own usdc, then bought 15 back with the proceeds: a 5 usdc profit.
+        _trade(address(usdc), 10 ether, tokenAddr, 20 ether);
+        _trade(tokenAddr, 20 ether, address(usdc), 15 ether);
+
+        assertEq(usdc.balanceOf(strategist), 0.5 ether);
+    }
+
+    function test_Commission_SeparatesStrategists() public {
+        address other = makeAddr("other");
+
+        _trade(tokenAddr, 10 ether, address(usdc), 5);
+        _deliver(_swapReportFor(other, address(usdc), 5, tokenAddr, 0, _swapData(address(usdc), 5, tokenAddr, 20 ether)));
+
+        assertEq(token.balanceOf(strategist), 0);
+        assertEq(token.balanceOf(other), 0);
+    }
+
+    function test_Commission_StaysLockedWhenStrategistCannotReceive() public {
+        address rejecting = address(new RejectsETH());
+        vm.deal(address(router), 100 ether);
+
+        bytes memory open = _swapData(address(0), 0, address(usdc), 30);
+        _deliver(_swapReportFor(rejecting, address(0), 1 ether, address(usdc), 0, open));
+
+        bytes memory close = _swapData(address(usdc), 30, address(0), 2 ether);
+        _deliver(_swapReportFor(rejecting, address(usdc), 30, address(0), 0, close));
+
+        assertEq(usdc.balanceOf(address(vault)), 0, "the trade still happened");
+        assertEq(address(vault).balance, 11 ether);
+        assertEq(vault.lockedCommission(address(0)), 0.1 ether);
+
+        vm.prank(investor);
+        vm.expectRevert(Vault.InsufficientUnlockedBalance.selector);
+        vault.withdrawETH(11 ether);
+    }
+
+    function test_Swap_RevertsWithoutStrategist() public {
+        bytes memory report =
+            _swapReportFor(address(0), tokenAddr, 1, address(usdc), 0, _swapData(tokenAddr, 1, address(usdc), 0));
+
+        vm.prank(forwarder);
+        vm.expectRevert(CommissionManager.InvalidAddress.selector);
+        manager.onReport(_metadata(workflowOwner), report);
+    }
+
+    function testFuzz_Commission_NeverExceedsTenPercentOfProfit(uint96 cost, uint96 proceeds) public {
+        cost = uint96(bound(cost, 1, 100 ether));
+        _trade(tokenAddr, cost, address(usdc), 1000);
+        _trade(address(usdc), 1000, tokenAddr, proceeds);
+
+        uint256 profit = proceeds > cost ? uint256(proceeds) - cost : 0;
+        assertEq(token.balanceOf(strategist), profit / 10);
+        assertEq(token.balanceOf(address(vault)), 100 ether - uint256(cost) + proceeds - profit / 10);
+    }
+
+    function testFuzz_ExecuteSwap_RevertsForNonManager(address caller) public {
+        vm.assume(caller != address(manager));
+
+        vm.prank(caller);
+        vm.expectRevert(Vault.OnlyCommissionManager.selector);
+        vault.executeSwap(tokenAddr, 1, address(usdc), 0, "");
     }
 
     // The forwarder runs this exact check and permanently rejects the report if it fails
