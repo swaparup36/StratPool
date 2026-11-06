@@ -100,8 +100,9 @@ const graphSchema = z.object({
 });
 type Graph = z.infer<typeof graphSchema>;
 
-const DECIMAL = /^\d{1,18}(\.\d{1,18})?$/;
-const decimalHint = "must be a decimal number such as 100 or 0.5";
+export const TRADING_PAIR = /^[A-Z0-9]+\/[A-Z0-9]+$/;
+export const DECIMAL = /^\d{1,18}(\.\d{1,18})?$/;
+export const decimalHint ="must be a decimal number such as 100 or 0.5";
 
 const optionalText = z.string().trim().nullish().transform((v) => v || null);
 
@@ -131,7 +132,7 @@ const metadataSchema = z
     description: z.string().trim().min(1, "Description is required").max(2000, "Description can be at most 2000 characters"),
     chain: z.enum(CHAINS, "Choose a chain"),
     tradingType: z.enum(TRADING_TYPES, "Choose a trading type"),
-    tradingPair: z.string().trim().toUpperCase().regex(/^[A-Z0-9]+\/[A-Z0-9]+$/, "Trading pair must look like ETH/USDC"),
+    tradingPair: z.string().trim().toUpperCase().regex(TRADING_PAIR, "Trading pair must look like ETH/USDC"),
     protocol: z.string().trim().toUpperCase().min(1, "Protocol is required"),
     poolAddress: optionalText.refine(
       (v) => !v || /^0x([0-9a-fA-F]{40}|[0-9a-fA-F]{64})$/.test(v),

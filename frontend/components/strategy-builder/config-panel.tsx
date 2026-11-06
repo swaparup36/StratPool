@@ -19,7 +19,7 @@ import {
 
 export const inputClass = "h-9 w-full rounded-lg border bg-surface px-3 text-sm placeholder:text-subtle";
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+export function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="grid gap-1 text-sm">
       <span className="text-muted">{label}</span>
@@ -28,7 +28,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-function SelectField({
+export function SelectField({
   label,
   value,
   options,

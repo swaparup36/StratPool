@@ -155,3 +155,15 @@ model BacktestResult {
   
   @@index([strategyId, createdAt])
 }
+
+model strategyAssignment {
+  id String @id @onCreate(uuid())
+  strategyId String
+  requirementId String
+  assignedAt DateTime @default(now()) @onCreate(now())
+
+  strategy Strategy @relation(fields: [strategyId], references: [id])
+  requirement InvestorRequirement @relation(fields: [requirementId], references: [id])
+
+  @@index([strategyId, requirementId])
+}

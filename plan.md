@@ -35,8 +35,12 @@ Investor onboarding:
 - Dashboard layout only serves the investor's own vault; Vault and Invest pages are blank for now. `strategy-sidebar` became a shared `Sidebar`.
 
 Vault page and per-chain vaults
-- `components/vault-panel.tsx`: balances (in vault, locked commission, withdrawable, in wallet) and deposit/withdraw for ETH and ERC-20 (approval handled); tokens are added by address and remembered per browser, because the vault can't list its tokens.
+- `components/vault-panel.tsx`: balances (in vault, locked commission, withdrawable, in wallet) and deposit/withdraw for ETH and ERC-20 (approval handled); tokens are added by symbol (address resolved per chain through LI.FI, then confirmed on-chain) and remembered per browser, because the vault can't list its tokens.
 - Added a navbar chain selector on `/investors` pages (RainbowKit chain modal). Vault creation and the dashboard follow the wallet's chain through `VAULT_DEPLOYERS` in `lib/contracts.ts`; chains with no deployer show "not available" (only Sepolia is deployed).
+
+Invest page: post and list investor requirements
+- Dashboard Invest page lists the user's requirements newest first; "Post requirement" opens a form dialog (`components/post-requirement.tsx`).
+- `POST /api/requirements` validates with `lib/requirements.ts` and checks the asset exists on the chain through LI.FI; stores the canonical symbol and `amount` as a human-readable decimal, since the table has no decimals column.
 
 
 

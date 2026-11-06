@@ -23,6 +23,10 @@
     "User": {
       "model": "User",
       "namespace": "public"
+    },
+    "strategyAssignment": {
+      "model": "strategyAssignment",
+      "namespace": "public"
     }
   },
   "domain": {
@@ -904,6 +908,93 @@
               "namespaceId": "public",
               "table": "User"
             }
+          },
+          "strategyAssignment": {
+            "fields": {
+              "assignedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "requirementId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "strategyId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "requirement": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "requirementId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "InvestorRequirement",
+                  "namespace": "public"
+                }
+              },
+              "strategy": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "strategyId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Strategy",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "assignedAt": {
+                  "column": "assignedAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "requirementId": {
+                  "column": "requirementId"
+                },
+                "strategyId": {
+                  "column": "strategyId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "strategyAssignment"
+            }
           }
         }
       }
@@ -1604,6 +1695,110 @@
                   ]
                 }
               ]
+            },
+            "strategyAssignment": {
+              "columns": {
+                "assignedAt": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "requirementId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "strategyId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "strategyAssignment_strategyId_idx_65b7cc99"
+                  },
+                  "source": {
+                    "columns": [
+                      "strategyId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "strategyAssignment"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Strategy"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "strategyAssignment_requirementId_idx_fb134ad7"
+                  },
+                  "source": {
+                    "columns": [
+                      "requirementId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "strategyAssignment"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "InvestorRequirement"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "requirementId"
+                  ],
+                  "name": "strategyAssignment_requirementId_idx_fb134ad7",
+                  "prefix": "strategyAssignment_requirementId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "strategyId"
+                  ],
+                  "name": "strategyAssignment_strategyId_idx_65b7cc99",
+                  "prefix": "strategyAssignment_strategyId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "strategyId",
+                    "requirementId"
+                  ],
+                  "name": "strategyAssignment_strategyId_requirementId_idx_538c7784",
+                  "prefix": "strategyAssignment_strategyId_requirementId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
             }
           },
           "valueSet": {
@@ -1658,10 +1853,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "226b77b1ada4c75851ee7bf4cef78f8cfd5ad6d4d7ef8113131ee311695e303a"
+    "storageHash": "1b0444a3b781d2cd89e314380c77e33c3f0305a402342fbf83aee692ff4b5698"
   },
   "execution": {
-    "executionHash": "bef5eb6ddb197d0a7bc1be0f4a26395bb31111244098c2043aac825e33404a32",
+    "executionHash": "ae2b68a34a8e63e2f914f6240feee2029e91b8f3de1dda6dee82c9606419903c",
     "mutations": {
       "defaults": [
         {
@@ -1835,6 +2030,31 @@
           "ref": {
             "entry": "User",
             "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator",
+            "params": {
+              "precision": 3
+            }
+          },
+          "ref": {
+            "entry": "strategyAssignment",
+            "field": "assignedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "strategyAssignment",
+            "field": "id",
             "namespace": "public"
           }
         }

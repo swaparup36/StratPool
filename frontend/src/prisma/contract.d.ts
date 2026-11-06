@@ -23,9 +23,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'226b77b1ada4c75851ee7bf4cef78f8cfd5ad6d4d7ef8113131ee311695e303a'>;
+  StorageHashBase<'1b0444a3b781d2cd89e314380c77e33c3f0305a402342fbf83aee692ff4b5698'>;
 export type ExecutionHash =
-  ExecutionHashBase<'bef5eb6ddb197d0a7bc1be0f4a26395bb31111244098c2043aac825e33404a32'>;
+  ExecutionHashBase<'ae2b68a34a8e63e2f914f6240feee2029e91b8f3de1dda6dee82c9606419903c'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -465,6 +465,15 @@ export namespace Models {
     username: FieldOutputTypes['public']['User']['username'];
     readonly [RelationKeys]?: never;
   };
+  export type public_strategyAssignment = {
+    assignedAt: FieldOutputTypes['public']['strategyAssignment']['assignedAt'];
+    id: FieldOutputTypes['public']['strategyAssignment']['id'];
+    requirementId: FieldOutputTypes['public']['strategyAssignment']['requirementId'];
+    strategyId: FieldOutputTypes['public']['strategyAssignment']['strategyId'];
+    requirement: public_InvestorRequirement;
+    strategy: public_Strategy;
+    readonly [RelationKeys]?: 'requirement' | 'strategy';
+  };
 }
 
 export declare const models: {
@@ -474,6 +483,7 @@ export declare const models: {
     Strategy: Models.public_Strategy;
     StrategyAcceptedAsset: Models.public_StrategyAcceptedAsset;
     User: Models.public_User;
+    strategyAssignment: Models.public_strategyAssignment;
   };
 };
 
@@ -955,6 +965,84 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly strategyAssignment: {
+              columns: {
+                readonly assignedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly requirementId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly strategyId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'strategyAssignment_requirementId_idx_fb134ad7';
+                  readonly prefix: 'strategyAssignment_requirementId_idx';
+                  readonly columns: readonly ['requirementId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'strategyAssignment_strategyId_idx_65b7cc99';
+                  readonly prefix: 'strategyAssignment_strategyId_idx';
+                  readonly columns: readonly ['strategyId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'strategyAssignment_strategyId_requirementId_idx_538c7784';
+                  readonly prefix: 'strategyAssignment_strategyId_requirementId_idx';
+                  readonly columns: readonly ['strategyId', 'requirementId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'strategyAssignment';
+                    readonly columns: readonly ['strategyId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Strategy';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'strategyAssignment';
+                    readonly columns: readonly ['requirementId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'InvestorRequirement';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly User: {
               columns: {
                 readonly address: {
@@ -1069,6 +1157,10 @@ type ContractBase = Omit<
       readonly model: 'StrategyAcceptedAsset';
     };
     readonly User: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+    readonly strategyAssignment: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'strategyAssignment';
+    };
   };
   readonly domain: {
     readonly namespaces: {
@@ -1452,6 +1544,66 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly strategyAssignment: {
+            readonly fields: {
+              readonly assignedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly requirementId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly strategyId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: {
+              readonly requirement: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'InvestorRequirement';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['requirementId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly strategy: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Strategy';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['strategyId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'strategyAssignment';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly assignedAt: { readonly column: 'assignedAt' };
+                readonly id: { readonly column: 'id' };
+                readonly requirementId: { readonly column: 'requirementId' };
+                readonly strategyId: { readonly column: 'strategyId' };
+              };
+            };
+          };
           readonly User: {
             readonly fields: {
               readonly address: {
@@ -1759,6 +1911,26 @@ type ContractBase = Omit<
           readonly ref: {
             readonly entry: 'User';
             readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: {
+            readonly id: 'timestampNow';
+            readonly kind: 'generator';
+            readonly params: { readonly precision: 3 };
+          };
+          readonly ref: {
+            readonly entry: 'strategyAssignment';
+            readonly field: 'assignedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'strategyAssignment';
+            readonly field: 'id';
             readonly namespace: 'public';
           };
         },

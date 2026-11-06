@@ -7,6 +7,7 @@ import { erc20Abi, formatUnits, isAddress, isAddressEqual, zeroAddress, type Add
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { parseAmount } from "@/lib/amount";
 import { vaultAbi } from "@/lib/contracts";
+import { findToken, TokenLookupError } from "@/lib/tokens";
 import { waitForTx } from "@/wagmi";
 import { buttonClass } from "./ui";
 
@@ -89,17 +90,24 @@ export function VaultPanel({ owner, vault, chainId }: { owner: Address; vault: A
   async function addToken(e: FormEvent) {
     e.preventDefault();
     setTokenError(null);
-    const token = newToken.trim();
-    if (!isAddress(token)) {
-      setTokenError("Enter a valid token address");
-      return;
-    }
-    if (tokens.some((t) => isAddressEqual(t, token))) {
-      setTokenError("This token is already listed");
+    const symbol = newToken.trim();
+    if (!/^\S{1,20}$/.test(symbol)) {
+      setTokenError("Enter a valid token symbol");
       return;
     }
     setAddingToken(true);
     try {
+      const found = await findToken(chainId, symbol);
+      if (!found) {
+        setTokenError(`No token with symbol ${symbol} found on ${client.chain.name}`);
+        return;
+      }
+      const token = found.address as Address;
+      if (token === zeroAddress || tokens.some((t) => isAddressEqual(t, token))) {
+        setTokenError(`${found.symbol} is already listed`);
+        return;
+      }
+      // the token list came from an API, so confirm the contract really is on this chain
       await Promise.all([
         client.readContract({ address: token, abi: erc20Abi, functionName: "symbol" }),
         client.readContract({ address: token, abi: erc20Abi, functionName: "decimals" }),
@@ -108,8 +116,8 @@ export function VaultPanel({ owner, vault, chainId }: { owner: Address; vault: A
       saveTokens([...tokens, token]);
       setSelected(token);
       setNewToken("");
-    } catch {
-      setTokenError(`No ERC-20 token found at this address on ${client.chain.name}`);
+    } catch (e) {
+      setTokenError(e instanceof TokenLookupError ? e.message : `Couldn't read ${symbol} on ${client.chain.name}, please try again`);
     } finally {
       setAddingToken(false);
     }
@@ -324,16 +332,16 @@ export function VaultPanel({ owner, vault, chainId }: { owner: Address; vault: A
           <div className="grid gap-1">
             <h2 className="text-sm">Add an ERC-20 token</h2>
             <p className="text-sm text-subtle">
-              Paste a token&apos;s address on {client.chain.name} to deposit it or see its balance. Only add tokens you trust.
+              Enter a token&apos;s symbol to deposit it, withdraw it or see its balance on {client.chain.name}.
             </p>
           </div>
           <div className="flex gap-2">
             <input
               className={inputClass}
-              aria-label="Token address"
+              aria-label="Token symbol"
               autoComplete="off"
               spellCheck={false}
-              placeholder="0x…"
+              placeholder="USDC"
               value={newToken}
               onChange={(e) => setNewToken(e.target.value)}
             />

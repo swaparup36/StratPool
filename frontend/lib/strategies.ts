@@ -1,6 +1,6 @@
 import type { CreateStrategyPayload, SaveStatus } from "@/components/strategy-builder/schema";
 
-async function send(url: string, method: string, fallback: string, payload?: unknown) {
+export async function send(url: string, method: string, fallback: string, payload?: unknown) {
   const response = await fetch(url, {
     method,
     headers: { "Content-Type": "application/json" },

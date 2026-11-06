@@ -2,7 +2,7 @@ import { parseUnits } from "viem";
 import { z } from "zod";
 import type { Chain, CreateStrategyPayload } from "@/components/strategy-builder/schema";
 
-const CHAIN_IDS: Record<Chain, number> = { ETHEREUM: 1, BASE: 8453, ARBITRUM: 42161, SEPOLIA: 11155111 };
+export const CHAIN_IDS: Record<Chain, number> = { ETHEREUM: 1, BASE: 8453, ARBITRUM: 42161, SEPOLIA: 11155111 };
 
 const TOKEN_API = "https://li.quest/v1/token";
 
@@ -15,7 +15,7 @@ const tokenResponse = z.object({
 
 export class TokenLookupError extends Error {}
 
-async function findToken(chainId: number, symbol: string) {
+export async function findToken(chainId: number, symbol: string) {
   const unavailable = (cause: unknown) => new TokenLookupError("Couldn't verify token symbols right now. Please try again.", { cause });
 
   let response: Response;
