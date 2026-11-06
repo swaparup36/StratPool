@@ -1,0 +1,30 @@
+{
+  "name": "backtest-engine",
+  "version": "1.0.0",
+  "description": "A backtesting engine to score strategies.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "microservice",
+    "backtest-engine"
+  ],
+  "author": "Krish Shaw",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/pg": "^8.23.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.9",
+    "pg": "^8.23.1",
+    "zod": "^4.6.7"
+  }
+}
