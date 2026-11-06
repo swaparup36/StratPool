@@ -4,18 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon, type IconName } from "./icon";
 
-const links: { href: string; label: string; icon: IconName; activePrefix?: string }[] = [
-  { href: "/strategies/create", label: "Create strategy", icon: "plus" },
-  { href: "/strategies/my", label: "My strategies", icon: "layers", activePrefix: "/strategies/edit" },
-];
-
-export function StrategySidebar() {
+export function Sidebar({
+  label,
+  links,
+}: {
+  label: string;
+  links: { href: string; label: string; icon: IconName; activePrefix?: string }[];
+}) {
   const pathname = usePathname();
 
   return (
     <nav
       className="flex flex-none gap-1 border-b bg-surface p-3 text-sm max-md:overflow-x-auto md:w-60 md:flex-col md:border-r md:border-b-0"
-      aria-label="Strategies"
+      aria-label={label}
     >
       {links.map(({ href, label, icon, activePrefix }) => {
         const active = pathname === href || (activePrefix && pathname.startsWith(activePrefix));

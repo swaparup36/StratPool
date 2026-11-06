@@ -107,7 +107,7 @@ export function AuthProvider({
         signOut: async () => {
           await fetch('/api/auth/logout', { method: 'POST' });
           setStatus('unauthenticated');
-          if (/^\/strategies(\/|$)/.test(window.location.pathname)) window.location.assign('/');
+          if (/^\/(strategies|investors)(\/|$)/.test(window.location.pathname)) window.location.assign('/');
         },
       }),
     []

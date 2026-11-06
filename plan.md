@@ -30,6 +30,10 @@ Audit `stratpool-contracts` and write essential tests
 - Changed settlement to CRE forwarder -> `CommissionManager.onReport` (checks forwarder, workflow owner, chain) -> `Vault.requestTransfer` -> strategist; removed CRE from the vault and deployer.
 - Added `test/StratPool.t.sol` covering deployment, owner-only withdrawal, locking, settlement and report validation.
 
+Investor onboarding:
+- `create-vault` connects the wallet, switches to Sepolia, sends `createVault` and redirects using the `VaultCreated` event; it rejects a wallet other than the account's.
+- Dashboard layout only serves the investor's own vault; Vault and Invest pages are blank for now. `strategy-sidebar` became a shared `Sidebar`.
+
 
 
 
