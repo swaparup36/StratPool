@@ -2,10 +2,12 @@ import type { Address } from "viem";
 
 // vaults are per chain. Add a chain's deployer here once it's deployed there.
 export const VAULT_DEPLOYERS: Partial<Record<number, Address>> = {
-  11155111: "0xE109Aefe0C332F451Ffd9E892133b5DEE6A5F1A3",
+  11155111: "0xc331aEBb92a98506889e616f4Af550CF7590871C",
 };
 
-export const COMMISSION_MANAGER_ADDRESS = "0xa639d9fD47dbA62f5803Fd03752BF5b8836b74B4";
+export const COMMISSION_MANAGER_ADDRESS: Partial<Record<number, Address>> = {
+  11155111: "0xDF441049F10208f25ae9f5b6de9E4065efC21883",
+};
 export const SEPOLIA_RPC_URL = process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com";
 
 export const vaultDeployerAbi = [

@@ -1,16 +1,30 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { cache } from "react";
+import { formatUnits } from "viem";
 import { PostRequirement } from "@/components/post-requirement";
-import { CHAINS } from "@/components/strategy-builder/schema";
+import { RequirementPnl } from "@/components/requirement-pnl";
+import { CHAINS, type Chain } from "@/components/strategy-builder/schema";
 import { Tag } from "@/components/ui";
 import { getInvestorVault } from "@/lib/investor";
 import { getSession } from "@/lib/session";
-import { CHAIN_IDS } from "@/lib/tokens";
+import { CHAIN_IDS, findToken } from "@/lib/tokens";
 import { db } from "@/src/prisma/db";
 
 export const metadata: Metadata = { title: "Invest" };
 
 const statusLabels = { OPEN: "Open", MATCHED: "Matched", CLOSED: "Closed" };
+
+// One lookup per token per render. The table stores no decimals, so a failed lookup can't be converted and shows wei.
+const tokenDecimals = cache(async (chain: string, asset: string) => {
+  const token = await findToken(CHAIN_IDS[chain as Chain], asset).catch(() => null);
+  return token?.decimals ?? null;
+});
+
+async function RequirementAmount({ amount, asset, chain }: { amount: string; asset: string; chain: string }) {
+  const decimals = await tokenDecimals(chain, asset);
+  return decimals === null ? `${amount} wei of ${asset}` : `${formatUnits(BigInt(amount), decimals)} ${asset}`;
+}
 
 export default async function InvestPage({ params }: { params: Promise<{ vault_address: string }> }) {
   const session = await getSession();
@@ -21,6 +35,20 @@ export default async function InvestPage({ params }: { params: Promise<{ vault_a
   const requirements = await db.orm.public.InvestorRequirement.where({ investorId: session.userId })
     .orderBy((r) => r.createdAt.desc())
     .all();
+
+  const assignments = await db.orm.public.strategyAssignment.where((a) => a.requirementId.in(requirements.map((r) => r.id)))
+    .select("id", "requirementId", "deployedAt")
+    .all();
+  const deployed = assignments.filter((a) => a.deployedAt);
+  const strategized = new Set(deployed.map((a) => a.requirementId));
+
+  const trades = await db.orm.public.Trade.where((t) => t.assignmentId.in(deployed.map((a) => a.id)))
+    .select("assignmentId", "chainId", "token", "cost", "proceeds", "commission")
+    .all();
+  const tradesOf = (requirementId: string) => {
+    const ids = new Set(deployed.filter((a) => a.requirementId === requirementId).map((a) => a.id));
+    return trades.filter((t) => ids.has(t.assignmentId));
+  };
 
   return (
     <section className="grid gap-6 p-6 md:p-10">
@@ -37,9 +65,10 @@ export default async function InvestPage({ params }: { params: Promise<{ vault_a
             <li className="grid min-w-0 gap-4 rounded-xl border bg-surface p-5" key={requirement.id}>
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="min-w-0 text-lg break-words">
-                  {requirement.amount} {requirement.asset}
+                  <RequirementAmount amount={requirement.amount} asset={requirement.asset} chain={requirement.chain} />
                 </h2>
                 <Tag>{statusLabels[requirement.status]}</Tag>
+                {strategized.has(requirement.id) && <Tag>Strategized</Tag>}
               </div>
 
               <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-3 lg:grid-cols-6">
@@ -57,6 +86,8 @@ export default async function InvestPage({ params }: { params: Promise<{ vault_a
                   </div>
                 ))}
               </dl>
+
+              {strategized.has(requirement.id) && <RequirementPnl trades={tradesOf(requirement.id)} />}
             </li>
           ))}
         </ul>

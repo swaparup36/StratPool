@@ -23,9 +23,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'1b0444a3b781d2cd89e314380c77e33c3f0305a402342fbf83aee692ff4b5698'>;
+  StorageHashBase<'df39a988f35b6899daf34eb6341ddbb5596b56e3a16bbde38da4fb2df20e22ae'>;
 export type ExecutionHash =
-  ExecutionHashBase<'ae2b68a34a8e63e2f914f6240feee2029e91b8f3de1dda6dee82c9606419903c'>;
+  ExecutionHashBase<'bb54cc3821a4e2f9d37ede3d0f0c03167049960135aa3d9e21344bee3d922a72'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -454,6 +454,21 @@ export namespace Models {
     strategy: public_Strategy;
     readonly [RelationKeys]?: 'strategy';
   };
+  export type public_Trade = {
+    assignmentId: FieldOutputTypes['public']['Trade']['assignmentId'];
+    blockNumber: FieldOutputTypes['public']['Trade']['blockNumber'];
+    chainId: FieldOutputTypes['public']['Trade']['chainId'];
+    closedAt: FieldOutputTypes['public']['Trade']['closedAt'];
+    commission: FieldOutputTypes['public']['Trade']['commission'];
+    cost: FieldOutputTypes['public']['Trade']['cost'];
+    id: FieldOutputTypes['public']['Trade']['id'];
+    logIndex: FieldOutputTypes['public']['Trade']['logIndex'];
+    proceeds: FieldOutputTypes['public']['Trade']['proceeds'];
+    token: FieldOutputTypes['public']['Trade']['token'];
+    txHash: FieldOutputTypes['public']['Trade']['txHash'];
+    assignment: public_strategyAssignment;
+    readonly [RelationKeys]?: 'assignment';
+  };
   export type public_User = {
     address: FieldOutputTypes['public']['User']['address'];
     createdAt: FieldOutputTypes['public']['User']['createdAt'];
@@ -467,6 +482,7 @@ export namespace Models {
   };
   export type public_strategyAssignment = {
     assignedAt: FieldOutputTypes['public']['strategyAssignment']['assignedAt'];
+    deployedAt: FieldOutputTypes['public']['strategyAssignment']['deployedAt'];
     id: FieldOutputTypes['public']['strategyAssignment']['id'];
     requirementId: FieldOutputTypes['public']['strategyAssignment']['requirementId'];
     strategyId: FieldOutputTypes['public']['strategyAssignment']['strategyId'];
@@ -482,6 +498,7 @@ export declare const models: {
     InvestorRequirement: Models.public_InvestorRequirement;
     Strategy: Models.public_Strategy;
     StrategyAcceptedAsset: Models.public_StrategyAcceptedAsset;
+    Trade: Models.public_Trade;
     User: Models.public_User;
     strategyAssignment: Models.public_strategyAssignment;
   };
@@ -975,6 +992,13 @@ type ContractBase = Omit<
                   readonly typeParams: { readonly precision: 3 };
                   readonly many: false;
                 };
+                readonly deployedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
                 readonly id: {
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
@@ -995,7 +1019,7 @@ type ContractBase = Omit<
                 };
               };
               primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [];
+              uniques: readonly [{ readonly columns: readonly ['strategyId', 'requirementId'] }];
               indexes: readonly [
                 {
                   readonly name: 'strategyAssignment_requirementId_idx_fb134ad7';
@@ -1007,12 +1031,6 @@ type ContractBase = Omit<
                   readonly name: 'strategyAssignment_strategyId_idx_65b7cc99';
                   readonly prefix: 'strategyAssignment_strategyId_idx';
                   readonly columns: readonly ['strategyId'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'strategyAssignment_strategyId_requirementId_idx_538c7784';
-                  readonly prefix: 'strategyAssignment_strategyId_requirementId_idx';
-                  readonly columns: readonly ['strategyId', 'requirementId'];
                   readonly unique: false;
                 },
               ];
@@ -1038,6 +1056,104 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'InvestorRequirement';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly Trade: {
+              columns: {
+                readonly assignmentId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly blockNumber: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly chainId: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly closedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly commission: {
+                  readonly dataType: 'pg/numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 78; readonly scale: 0 };
+                  readonly many: false;
+                };
+                readonly cost: {
+                  readonly dataType: 'pg/numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 78; readonly scale: 0 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly logIndex: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly proceeds: {
+                  readonly dataType: 'pg/numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 78; readonly scale: 0 };
+                  readonly many: false;
+                };
+                readonly token: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly txHash: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [{ readonly columns: readonly ['chainId', 'txHash', 'logIndex'] }];
+              indexes: readonly [
+                {
+                  readonly name: 'Trade_assignmentId_idx_8cfb4ac4';
+                  readonly prefix: 'Trade_assignmentId_idx';
+                  readonly columns: readonly ['assignmentId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Trade';
+                    readonly columns: readonly ['assignmentId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'strategyAssignment';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -1156,6 +1272,7 @@ type ContractBase = Omit<
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'StrategyAcceptedAsset';
     };
+    readonly Trade: { readonly namespace: 'public' & NamespaceId; readonly model: 'Trade' };
     readonly User: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
     readonly strategyAssignment: {
       readonly namespace: 'public' & NamespaceId;
@@ -1554,6 +1671,14 @@ type ContractBase = Omit<
                   readonly typeParams: { readonly precision: 3 };
                 };
               };
+              readonly deployedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
               readonly id: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -1598,9 +1723,105 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly assignedAt: { readonly column: 'assignedAt' };
+                readonly deployedAt: { readonly column: 'deployedAt' };
                 readonly id: { readonly column: 'id' };
                 readonly requirementId: { readonly column: 'requirementId' };
                 readonly strategyId: { readonly column: 'strategyId' };
+              };
+            };
+          };
+          readonly Trade: {
+            readonly fields: {
+              readonly assignmentId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly blockNumber: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly chainId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly closedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly commission: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly typeParams: { readonly precision: 78; readonly scale: 0 };
+                };
+              };
+              readonly cost: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly typeParams: { readonly precision: 78; readonly scale: 0 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly logIndex: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly proceeds: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly typeParams: { readonly precision: 78; readonly scale: 0 };
+                };
+              };
+              readonly token: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly txHash: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: {
+              readonly assignment: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'strategyAssignment';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['assignmentId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'Trade';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly assignmentId: { readonly column: 'assignmentId' };
+                readonly blockNumber: { readonly column: 'blockNumber' };
+                readonly chainId: { readonly column: 'chainId' };
+                readonly closedAt: { readonly column: 'closedAt' };
+                readonly commission: { readonly column: 'commission' };
+                readonly cost: { readonly column: 'cost' };
+                readonly id: { readonly column: 'id' };
+                readonly logIndex: { readonly column: 'logIndex' };
+                readonly proceeds: { readonly column: 'proceeds' };
+                readonly token: { readonly column: 'token' };
+                readonly txHash: { readonly column: 'txHash' };
               };
             };
           };
@@ -1873,6 +2094,14 @@ type ContractBase = Omit<
           readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
           readonly ref: {
             readonly entry: 'StrategyAcceptedAsset';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'Trade';
             readonly field: 'id';
             readonly namespace: 'public';
           };

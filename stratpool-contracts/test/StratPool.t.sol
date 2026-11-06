@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Test} from "forge-std/Test.sol";
+import {Test, Vm} from "forge-std/Test.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {ERC165Checker} from "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import {CommissionManager, IReceiver} from "../src/CommissionManager.sol";
@@ -59,6 +59,7 @@ contract StratPoolTest is Test {
     address forwarder = makeAddr("forwarder");
     address workflowOwner = makeAddr("workflowOwner");
     address strategist = makeAddr("strategist");
+    bytes32 assignmentId = keccak256("assignment");
 
     VaultDeployer deployer;
     CommissionManager manager;
@@ -363,7 +364,7 @@ contract StratPoolTest is Test {
         bytes memory routerData
     ) internal view returns (bytes memory) {
         return abi.encode(
-            block.chainid, CommissionManager.Action.Swap, investor, to, tokenIn, amountIn, tokenOut, minOut, routerData
+            block.chainid, CommissionManager.Action.Swap, investor, to, assignmentId, tokenIn, amountIn, tokenOut, minOut, routerData
         );
     }
 
@@ -426,7 +427,7 @@ contract StratPoolTest is Test {
 
     function test_Swap_RevertsForOtherChainAndWorkflowOwner() public {
         bytes memory wrongChain = abi.encode(
-            block.chainid + 1, CommissionManager.Action.Swap, investor, strategist, tokenAddr, 1, address(usdc), 0, bytes("")
+            block.chainid + 1, CommissionManager.Action.Swap, investor, strategist, assignmentId, tokenAddr, 1, address(usdc), 0, bytes("")
         );
         bytes memory valid = _swapReport(tokenAddr, 1, address(usdc), 0, _swapData(tokenAddr, 1, address(usdc), 0));
 
@@ -466,7 +467,7 @@ contract StratPoolTest is Test {
         _trade(address(usdc), 5, tokenAddr, 10 ether);
         assertEq(token.balanceOf(strategist), 0, "break-even");
 
-        (uint256 held, uint256 cost) = manager.positions(address(vault), strategist, address(usdc), tokenAddr);
+        (uint256 held, uint256 cost) = manager.positions(address(vault), assignmentId, address(usdc), tokenAddr);
         assertEq(held, 0);
         assertEq(cost, 0);
     }
@@ -489,7 +490,7 @@ contract StratPoolTest is Test {
         _trade(address(usdc), 5, tokenAddr, 20 ether);
         assertEq(token.balanceOf(strategist), 1 ether);
 
-        (uint256 held, uint256 cost) = manager.positions(address(vault), strategist, address(usdc), tokenAddr);
+        (uint256 held, uint256 cost) = manager.positions(address(vault), assignmentId, address(usdc), tokenAddr);
         assertEq(held, 15);
         assertEq(cost, 30 ether);
     }
@@ -503,7 +504,7 @@ contract StratPoolTest is Test {
         _trade(address(usdc), 100, tokenAddr, 200 ether);
         assertEq(token.balanceOf(strategist), 1 ether);
 
-        (uint256 held, uint256 cost) = manager.positions(address(vault), strategist, tokenAddr, address(usdc));
+        (uint256 held, uint256 cost) = manager.positions(address(vault), assignmentId, tokenAddr, address(usdc));
         assertEq(held, 180 ether);
         assertEq(cost, 90);
     }
@@ -518,14 +519,49 @@ contract StratPoolTest is Test {
         assertEq(usdc.balanceOf(strategist), 0.5 ether);
     }
 
-    function test_Commission_SeparatesStrategists() public {
-        address other = makeAddr("other");
-
+    function test_Commission_SeparatesAssignmentsOfTheSameStrategist() public {
+        bytes32 first = assignmentId;
         _trade(tokenAddr, 10 ether, address(usdc), 5);
-        _deliver(_swapReportFor(other, address(usdc), 5, tokenAddr, 0, _swapData(address(usdc), 5, tokenAddr, 20 ether)));
 
+        // Another requirement's sale doesn't close the first one's position, so it records no trade.
+        assignmentId = keccak256("other assignment");
+        vm.recordLogs();
+        _trade(address(usdc), 5, tokenAddr, 20 ether);
+
+        Vm.Log[] memory logs = vm.getRecordedLogs();
+        for (uint256 i; i < logs.length; i++) {
+            assertTrue(logs[i].topics[0] != CommissionManager.TradeClosed.selector);
+        }
         assertEq(token.balanceOf(strategist), 0);
-        assertEq(token.balanceOf(other), 0);
+
+        (uint256 held, uint256 cost) = manager.positions(address(vault), first, address(usdc), tokenAddr);
+        assertEq(held, 5);
+        assertEq(cost, 10 ether);
+    }
+
+    function test_TradeClosed_ReportsProfitAndCommissionForTheAssignment() public {
+        _trade(tokenAddr, 10 ether, address(usdc), 5);
+
+        vm.expectEmit(address(manager));
+        emit CommissionManager.TradeClosed(address(vault), assignmentId, tokenAddr, 10 ether, 12 ether, 0.2 ether);
+        _trade(address(usdc), 5, tokenAddr, 12 ether);
+    }
+
+    function test_TradeClosed_ReportsLossWithNoCommission() public {
+        _trade(tokenAddr, 10 ether, address(usdc), 5);
+
+        vm.expectEmit(address(manager));
+        emit CommissionManager.TradeClosed(address(vault), assignmentId, tokenAddr, 10 ether, 8 ether, 0);
+        _trade(address(usdc), 5, tokenAddr, 8 ether);
+    }
+
+    function test_Swap_RevertsWithoutAssignment() public {
+        assignmentId = bytes32(0);
+        bytes memory report = _swapReport(tokenAddr, 1, address(usdc), 0, _swapData(tokenAddr, 1, address(usdc), 0));
+
+        vm.prank(forwarder);
+        vm.expectRevert(CommissionManager.InvalidAssignment.selector);
+        manager.onReport(_metadata(workflowOwner), report);
     }
 
     function test_Commission_StaysLockedWhenStrategistCannotReceive() public {

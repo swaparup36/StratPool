@@ -156,14 +156,36 @@ model BacktestResult {
   @@index([strategyId, createdAt])
 }
 
+// one strategy serving one requirement, and the CRE workflow that runs it. Its id tags every trade on-chain.
 model strategyAssignment {
   id String @id @onCreate(uuid())
   strategyId String
   requirementId String
   assignedAt DateTime @default(now()) @onCreate(now())
+  deployedAt DateTime?
 
   strategy Strategy @relation(fields: [strategyId], references: [id])
   requirement InvestorRequirement @relation(fields: [requirementId], references: [id])
 
-  @@index([strategyId, requirementId])
+  @@unique([strategyId, requirementId])
+}
+
+// closed trades indexed from CommissionManager's TradeClosed. Amounts are in base units of token.
+model Trade {
+  id String @id @onCreate(uuid())
+  assignmentId String
+  chainId Int
+  token String
+  cost Numeric(78, 0)
+  proceeds Numeric(78, 0)
+  commission Numeric(78, 0)
+  txHash String
+  logIndex Int
+  blockNumber Int
+  closedAt DateTime
+
+  assignment strategyAssignment @relation(fields: [assignmentId], references: [id])
+
+  @@unique([chainId, txHash, logIndex])
+  @@index([assignmentId])
 }

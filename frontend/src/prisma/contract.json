@@ -20,6 +20,10 @@
       "model": "StrategyAcceptedAsset",
       "namespace": "public"
     },
+    "Trade": {
+      "model": "Trade",
+      "namespace": "public"
+    },
     "User": {
       "model": "User",
       "namespace": "public"
@@ -812,6 +816,159 @@
               "table": "StrategyAcceptedAsset"
             }
           },
+          "Trade": {
+            "fields": {
+              "assignmentId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "blockNumber": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "chainId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "closedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "commission": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 78,
+                    "scale": 0
+                  }
+                }
+              },
+              "cost": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 78,
+                    "scale": 0
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "logIndex": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "proceeds": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 78,
+                    "scale": 0
+                  }
+                }
+              },
+              "token": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "txHash": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "assignment": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "assignmentId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "strategyAssignment",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "assignmentId": {
+                  "column": "assignmentId"
+                },
+                "blockNumber": {
+                  "column": "blockNumber"
+                },
+                "chainId": {
+                  "column": "chainId"
+                },
+                "closedAt": {
+                  "column": "closedAt"
+                },
+                "commission": {
+                  "column": "commission"
+                },
+                "cost": {
+                  "column": "cost"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "logIndex": {
+                  "column": "logIndex"
+                },
+                "proceeds": {
+                  "column": "proceeds"
+                },
+                "token": {
+                  "column": "token"
+                },
+                "txHash": {
+                  "column": "txHash"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Trade"
+            }
+          },
           "User": {
             "fields": {
               "address": {
@@ -921,6 +1078,16 @@
                   }
                 }
               },
+              "deployedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
               "id": {
                 "nullable": false,
                 "type": {
@@ -981,6 +1148,9 @@
               "fields": {
                 "assignedAt": {
                   "column": "assignedAt"
+                },
+                "deployedAt": {
+                  "column": "deployedAt"
                 },
                 "id": {
                   "column": "id"
@@ -1618,6 +1788,125 @@
                 }
               ]
             },
+            "Trade": {
+              "columns": {
+                "assignmentId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "blockNumber": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "chainId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "closedAt": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "commission": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 78,
+                    "scale": 0
+                  }
+                },
+                "cost": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 78,
+                    "scale": 0
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "logIndex": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "proceeds": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 78,
+                    "scale": 0
+                  }
+                },
+                "token": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "txHash": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Trade_assignmentId_idx_8cfb4ac4"
+                  },
+                  "source": {
+                    "columns": [
+                      "assignmentId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Trade"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "strategyAssignment"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "assignmentId"
+                  ],
+                  "name": "Trade_assignmentId_idx_8cfb4ac4",
+                  "prefix": "Trade_assignmentId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "chainId",
+                    "txHash",
+                    "logIndex"
+                  ]
+                }
+              ]
+            },
             "User": {
               "columns": {
                 "address": {
@@ -1710,6 +1999,14 @@
                     "precision": 3
                   }
                 },
+                "deployedAt": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
                 "id": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -1782,15 +2079,6 @@
                   "name": "strategyAssignment_strategyId_idx_65b7cc99",
                   "prefix": "strategyAssignment_strategyId_idx",
                   "unique": false
-                },
-                {
-                  "columns": [
-                    "strategyId",
-                    "requirementId"
-                  ],
-                  "name": "strategyAssignment_strategyId_requirementId_idx_538c7784",
-                  "prefix": "strategyAssignment_strategyId_requirementId_idx",
-                  "unique": false
                 }
               ],
               "primaryKey": {
@@ -1798,7 +2086,14 @@
                   "id"
                 ]
               },
-              "uniques": []
+              "uniques": [
+                {
+                  "columns": [
+                    "strategyId",
+                    "requirementId"
+                  ]
+                }
+              ]
             }
           },
           "valueSet": {
@@ -1853,10 +2148,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "1b0444a3b781d2cd89e314380c77e33c3f0305a402342fbf83aee692ff4b5698"
+    "storageHash": "df39a988f35b6899daf34eb6341ddbb5596b56e3a16bbde38da4fb2df20e22ae"
   },
   "execution": {
-    "executionHash": "ae2b68a34a8e63e2f914f6240feee2029e91b8f3de1dda6dee82c9606419903c",
+    "executionHash": "bb54cc3821a4e2f9d37ede3d0f0c03167049960135aa3d9e21344bee3d922a72",
     "mutations": {
       "defaults": [
         {
@@ -1983,6 +2278,17 @@
           },
           "ref": {
             "entry": "StrategyAcceptedAsset",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Trade",
             "field": "id",
             "namespace": "public"
           }

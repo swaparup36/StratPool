@@ -18,7 +18,7 @@ contract CommissionManager is IReceiver, ReentrancyGuard {
         Swap
     }
 
-    // position of a strategist in a token, measured in the token and the amount spent to acquire it. The cost is used to determine profit or loss when the position is closed
+    // position of an assignment (one strategy serving one investor requirement) in a token, measured in the token and the amount spent to acquire it. The cost is used to determine profit or loss when the position is closed
     struct Position {
         uint256 held;
         uint256 cost;
@@ -27,7 +27,7 @@ contract CommissionManager is IReceiver, ReentrancyGuard {
     // the strategist's share of a closed trade's profit
     uint256 public constant COMMISSION_BPS = 1000;
 
-    mapping(address vault => mapping(address strategist => mapping(address held => mapping(address paidIn => Position))))
+    mapping(address vault => mapping(bytes32 assignmentId => mapping(address held => mapping(address paidIn => Position))))
         public positions;
 
     VaultDeployer public immutable vaultDeployer;
@@ -37,12 +37,13 @@ contract CommissionManager is IReceiver, ReentrancyGuard {
     event CommissionLocked(address indexed vault, address indexed token, uint256 amount);
     event CommissionSettled(address indexed vault, address indexed strategist, address indexed token, uint256 amount);
     event SwapExecuted(address indexed vault, address indexed tokenIn, address indexed tokenOut, uint256 spent, uint256 received);
-    event TradeClosed(address indexed vault, address indexed strategist, address indexed token, uint256 cost, uint256 proceeds);
+    event TradeClosed(address indexed vault, bytes32 indexed assignmentId, address indexed token, uint256 cost, uint256 proceeds, uint256 commission);
 
     error OnlyForwarder();
     error InvalidWorkflowOwner();
     error InvalidChain();
     error InvalidAddress();
+    error InvalidAssignment();
     error ZeroAmount();
     error VaultNotFound();
 
@@ -91,14 +92,16 @@ contract CommissionManager is IReceiver, ReentrancyGuard {
             ,
             address investor,
             address strategist,
+            bytes32 assignmentId,
             address tokenIn,
             uint256 amountIn,
             address tokenOut,
             uint256 minAmountOut,
             bytes memory routerData
-        ) = abi.decode(report, (uint256, Action, address, address, address, uint256, address, uint256, bytes));
+        ) = abi.decode(report, (uint256, Action, address, address, bytes32, address, uint256, address, uint256, bytes));
 
         if (strategist == address(0)) revert InvalidAddress();
+        if (assignmentId == bytes32(0)) revert InvalidAssignment();
 
         address vault = vaultDeployer.vaultOf(investor);
         if (vault == address(0)) revert VaultNotFound();
@@ -107,14 +110,14 @@ contract CommissionManager is IReceiver, ReentrancyGuard {
             Vault(payable(vault)).executeSwap(tokenIn, amountIn, tokenOut, minAmountOut, routerData);
         emit SwapExecuted(vault, tokenIn, tokenOut, spent, received);
 
-        _updatePositions(vault, strategist, tokenIn, tokenOut, spent, received);
+        _updatePositions(vault, strategist, assignmentId, tokenIn, tokenOut, spent, received);
     }
 
     // Each swap first closes the previous position to realize profit or loss in tokenOut.
     // Any remaining amount opens a new position. Since CRE workflows are stateless,
     // this accounting must happen onchain in the same transaction as the swap.
-    function _updatePositions(address vault, address strategist, address tokenIn, address tokenOut, uint256 spent, uint256 received) private {
-        Position storage open = positions[vault][strategist][tokenIn][tokenOut];
+    function _updatePositions(address vault, address strategist, bytes32 assignmentId, address tokenIn, address tokenOut, uint256 spent, uint256 received) private {
+        Position storage open = positions[vault][assignmentId][tokenIn][tokenOut];
         uint256 closed = Math.min(spent, open.held);
         uint256 proceeds;
 
@@ -123,16 +126,15 @@ contract CommissionManager is IReceiver, ReentrancyGuard {
             proceeds = Math.mulDiv(received, closed, spent);
             open.held -= closed;
             open.cost -= cost;
-            emit TradeClosed(vault, strategist, tokenOut, cost, proceeds);
 
             // a loss pays nothing and isn't carried over to later trades.
-            if (proceeds > cost) {
-                _payCommission(vault, strategist, tokenOut, Math.mulDiv(proceeds - cost, COMMISSION_BPS, 10_000));
-            }
+            uint256 commission = proceeds > cost ? Math.mulDiv(proceeds - cost, COMMISSION_BPS, 10_000) : 0;
+            emit TradeClosed(vault, assignmentId, tokenOut, cost, proceeds, commission);
+            _payCommission(vault, strategist, tokenOut, commission);
         }
 
         if (spent > closed) {
-            Position storage opened = positions[vault][strategist][tokenOut][tokenIn];
+            Position storage opened = positions[vault][assignmentId][tokenOut][tokenIn];
             opened.held += received - proceeds;
             opened.cost += spent - closed;
         }

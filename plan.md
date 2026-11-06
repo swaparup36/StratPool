@@ -39,8 +39,18 @@ Vault page and per-chain vaults
 - Added a navbar chain selector on `/investors` pages (RainbowKit chain modal). Vault creation and the dashboard follow the wallet's chain through `VAULT_DEPLOYERS` in `lib/contracts.ts`; chains with no deployer show "not available" (only Sepolia is deployed).
 
 Invest page: post and list investor requirements
-- Dashboard Invest page lists the user's requirements newest first; "Post requirement" opens a form dialog (`components/post-requirement.tsx`).
-- `POST /api/requirements` validates with `lib/requirements.ts` and checks the asset exists on the chain through LI.FI; stores the canonical symbol and `amount` as a human-readable decimal, since the table has no decimals column.
+- Dashboard Invest page lists the user's requirements newest first, with a "Strategized" badge when a `strategyAssignment` exists; "Post requirement" opens a form dialog (`components/post-requirement.tsx`).
+- `POST /api/requirements` validates with `lib/requirements.ts` and checks the asset exists on the chain through LI.FI; stores the canonical symbol and `amount` in wei as a string, using the token's decimals for the chain and symbol. The Invest page converts it back for display.
+
+Track P&L per investor requirement
+- `CommissionManager`: swap reports carry an `assignmentId`, positions are keyed by it instead of strategist, and `TradeClosed` emits it with the commission. Requires a redeploy and new vaults.
+- `strategyAssignment` now also represents the workflow (`deployedAt`, unique per strategy and requirement); added `Trade`.
+- Workflow job is now `{requirement_id, strategy_id}`: the engine creates the assignment, deploys `workflow-<assignmentId>` and marks the requirement MATCHED. "Strategized" shows only once deployed. Matching itself isn't built, so nothing enqueues jobs yet.
+- Added `workflow-engine/src/indexer.ts`: polls finalized `TradeClosed` logs into `Trade`. Capital isn't separated between requirements yet.
+
+Show P&L on the requirements list
+- Strategized requirements show realized P&L after commission per token (`components/requirement-pnl.tsx`, `lib/pnl.ts`), with symbol and decimals read from the token contract.
+- Applied the contract to the DB with `prisma db update`, fixing the Invest page crash on `deployedAt`; this also dropped the unused `Strategy.isValidated`.
 
 
 

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { parseUnits } from "viem";
 import { failure, rejected, unauthorized } from "@/app/api/strategies/shared";
 import { requirementSchema } from "@/lib/requirements";
 import { getSession } from "@/lib/session";
@@ -23,6 +24,7 @@ export async function POST(req: Request) {
 
     const created = await db.orm.public.InvestorRequirement.create({
       ...requirement,
+      amount: parseUnits(requirement.amount, token.decimals).toString(),
       asset: token.symbol,
       investorId: session.userId,
     });
@@ -31,7 +33,7 @@ export async function POST(req: Request) {
     const enqueueResult = await requirementsMatchingQueue.add(
       "match-requirement",
       {
-        requirementId: created.id,
+        reqId: created.id,
       },
       {
         jobId: `requirements-matching-${created.id}`,
