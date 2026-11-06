@@ -2,10 +2,11 @@ import { Worker } from "bullmq";
 import { config } from "./config.js";
 import { db } from "./db.js";
 import { rankStrategies } from "./ranking.js";
+import { queue } from "./queue.js";
 
 export const worker = new Worker(
   // Todo: add the queue name
-  "",
+  "requirements-matching",
   async (job) => {
     const reqId = job.data.reqId;
 
@@ -21,9 +22,14 @@ export const worker = new Worker(
 
       const top3StrategyIds = ranked.map((strategy) => strategy.strategyId);
 
-      console.log({
-        recommendedStrategyId: top3StrategyIds[0] ?? null,
-        top3StrategyIds,
+      // console.log({
+      //   recommendedStrategyId: top3StrategyIds[0] ?? null,
+      //   top3StrategyIds,
+      // });
+
+      await queue.add("recommeded-strategies", {
+        requirement_id: reqId,
+        strategyId: top3StrategyIds[0] ?? null,
       });
     } catch (error) {
       console.error(error);

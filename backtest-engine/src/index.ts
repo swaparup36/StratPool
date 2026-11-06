@@ -2,7 +2,7 @@ import { worker } from "./worker.js";
 
 async function main() {
   worker.on("ready", () => {
-    console.log("Worker running...");
+    console.log("Backtesting engine running...");
   });
 }
 
