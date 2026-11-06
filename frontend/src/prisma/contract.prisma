@@ -136,3 +136,21 @@ model InvestorRequirement {
   @@index([status])
   @@index([chain, tradingType])
 }
+
+// Backtest results
+model BacktestResult {
+  id String @id @onCreate(uuid())
+  strategyId String
+  netReturnPct Numeric
+  maxDrawdownPct Numeric
+  totalTrades Int
+  initialCapital Numeric
+  finalEquity Numeric
+  periodStart DateTime
+  periodEnd DateTime
+  createdAt DateTime @default(now()) @onCreate(now())
+
+  strategy Strategy @relation(fields: [strategyId], references: [id])
+  
+  @@index([strategyId, createdAt])
+}

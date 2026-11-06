@@ -4,6 +4,10 @@
   "target": "postgres",
   "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
   "roots": {
+    "BacktestResult": {
+      "model": "BacktestResult",
+      "namespace": "public"
+    },
     "InvestorRequirement": {
       "model": "InvestorRequirement",
       "namespace": "public"
@@ -117,6 +121,143 @@
           }
         },
         "models": {
+          "BacktestResult": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "finalEquity": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "initialCapital": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar"
+                }
+              },
+              "maxDrawdownPct": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar"
+                }
+              },
+              "netReturnPct": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar"
+                }
+              },
+              "periodEnd": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "periodStart": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "strategyId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "totalTrades": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "strategy": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "strategyId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Strategy",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "finalEquity": {
+                  "column": "finalEquity"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "initialCapital": {
+                  "column": "initialCapital"
+                },
+                "maxDrawdownPct": {
+                  "column": "maxDrawdownPct"
+                },
+                "netReturnPct": {
+                  "column": "netReturnPct"
+                },
+                "periodEnd": {
+                  "column": "periodEnd"
+                },
+                "periodStart": {
+                  "column": "periodStart"
+                },
+                "strategyId": {
+                  "column": "strategyId"
+                },
+                "totalTrades": {
+                  "column": "totalTrades"
+                }
+              },
+              "namespaceId": "public",
+              "table": "BacktestResult"
+            }
+          },
           "InvestorRequirement": {
             "fields": {
               "amount": {
@@ -763,6 +904,119 @@
       "public": {
         "entries": {
           "table": {
+            "BacktestResult": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "finalEquity": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "initialCapital": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false
+                },
+                "maxDrawdownPct": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false
+                },
+                "netReturnPct": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false
+                },
+                "periodEnd": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "periodStart": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "strategyId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "totalTrades": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "BacktestResult_strategyId_idx_65b7cc99"
+                  },
+                  "source": {
+                    "columns": [
+                      "strategyId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "BacktestResult"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Strategy"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "strategyId",
+                    "createdAt"
+                  ],
+                  "name": "BacktestResult_strategyId_createdAt_idx_7d88f379",
+                  "prefix": "BacktestResult_strategyId_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "strategyId"
+                  ],
+                  "name": "BacktestResult_strategyId_idx_65b7cc99",
+                  "prefix": "BacktestResult_strategyId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "InvestorRequirement": {
               "checks": [
                 {
@@ -1385,12 +1639,37 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "2d45468db629f7297847f4bf6c4eef24a73dee9b7f02df1cef4dcf40306b0dd0"
+    "storageHash": "485db03caabda72ed41e72c1c5b6d665c59a01173a169de74bf3770ecd8da2b0"
   },
   "execution": {
-    "executionHash": "d528d8a73cd08326b8ce4da0cbed23b3ab49b8a3a880334a0026dfdf6527cdd7",
+    "executionHash": "bef5eb6ddb197d0a7bc1be0f4a26395bb31111244098c2043aac825e33404a32",
     "mutations": {
       "defaults": [
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator",
+            "params": {
+              "precision": 3
+            }
+          },
+          "ref": {
+            "entry": "BacktestResult",
+            "field": "createdAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "BacktestResult",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
         {
           "onCreate": {
             "id": "timestampNow",

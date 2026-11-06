@@ -25,4 +25,9 @@ Help building `/strategies/my` and strategy editing
 - Added the `/strategies/my` list of the user's drafts and published strategies, without the flow graph, with Edit, Publish or Take down, and Delete (confirmed in a modal) actions.
 - `/strategies/edit/[strategy_id]` reuses the builder to change the graph and details; a Save keeps the current status.
 
+Audit `stratpool-contracts` and write essential tests
+- Audited the Vault, VaultDeployer and CommissionManager; findings reported to the user.
+- Changed settlement to CRE forwarder -> `CommissionManager.onReport` (checks forwarder, workflow owner, chain) -> `Vault.requestTransfer` -> strategist; removed CRE from the vault and deployer.
+- Added `test/StratPool.t.sol` covering deployment, owner-only withdrawal, locking, settlement and report validation.
+
 

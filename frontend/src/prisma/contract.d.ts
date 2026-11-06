@@ -23,9 +23,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'2d45468db629f7297847f4bf6c4eef24a73dee9b7f02df1cef4dcf40306b0dd0'>;
+  StorageHashBase<'485db03caabda72ed41e72c1c5b6d665c59a01173a169de74bf3770ecd8da2b0'>;
 export type ExecutionHash =
-  ExecutionHashBase<'d528d8a73cd08326b8ce4da0cbed23b3ab49b8a3a880334a0026dfdf6527cdd7'>;
+  ExecutionHashBase<'bef5eb6ddb197d0a7bc1be0f4a26395bb31111244098c2043aac825e33404a32'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -389,6 +389,20 @@ export type StorageColumnInputTypes = ColumnTypesFromStorage<
 >;
 
 export namespace Models {
+  export type public_BacktestResult = {
+    createdAt: FieldOutputTypes['public']['BacktestResult']['createdAt'];
+    finalEquity: FieldOutputTypes['public']['BacktestResult']['finalEquity'];
+    id: FieldOutputTypes['public']['BacktestResult']['id'];
+    initialCapital: FieldOutputTypes['public']['BacktestResult']['initialCapital'];
+    maxDrawdownPct: FieldOutputTypes['public']['BacktestResult']['maxDrawdownPct'];
+    netReturnPct: FieldOutputTypes['public']['BacktestResult']['netReturnPct'];
+    periodEnd: FieldOutputTypes['public']['BacktestResult']['periodEnd'];
+    periodStart: FieldOutputTypes['public']['BacktestResult']['periodStart'];
+    strategyId: FieldOutputTypes['public']['BacktestResult']['strategyId'];
+    totalTrades: FieldOutputTypes['public']['BacktestResult']['totalTrades'];
+    strategy: public_Strategy;
+    readonly [RelationKeys]?: 'strategy';
+  };
   export type public_InvestorRequirement = {
     amount: FieldOutputTypes['public']['InvestorRequirement']['amount'];
     asset: FieldOutputTypes['public']['InvestorRequirement']['asset'];
@@ -454,6 +468,7 @@ export namespace Models {
 
 export declare const models: {
   public: {
+    BacktestResult: Models.public_BacktestResult;
     InvestorRequirement: Models.public_InvestorRequirement;
     Strategy: Models.public_Strategy;
     StrategyAcceptedAsset: Models.public_StrategyAcceptedAsset;
@@ -479,6 +494,104 @@ type ContractBase = Omit<
         readonly kind: 'postgres-schema';
         readonly entries: {
           readonly table: {
+            readonly BacktestResult: {
+              columns: {
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly finalEquity: {
+                  readonly dataType: 'pg/numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly initialCapital: {
+                  readonly dataType: 'pg/numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly maxDrawdownPct: {
+                  readonly dataType: 'pg/numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly netReturnPct: {
+                  readonly dataType: 'pg/numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly periodEnd: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly periodStart: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly strategyId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly totalTrades: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'BacktestResult_strategyId_createdAt_idx_7d88f379';
+                  readonly prefix: 'BacktestResult_strategyId_createdAt_idx';
+                  readonly columns: readonly ['strategyId', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'BacktestResult_strategyId_idx_65b7cc99';
+                  readonly prefix: 'BacktestResult_strategyId_idx';
+                  readonly columns: readonly ['strategyId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'BacktestResult';
+                    readonly columns: readonly ['strategyId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Strategy';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly InvestorRequirement: {
               columns: {
                 readonly amount: {
@@ -931,6 +1044,10 @@ type ContractBase = Omit<
   readonly target: 'postgres';
   readonly targetFamily: 'sql';
   readonly roots: {
+    readonly BacktestResult: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'BacktestResult';
+    };
     readonly InvestorRequirement: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'InvestorRequirement';
@@ -946,6 +1063,92 @@ type ContractBase = Omit<
     readonly namespaces: {
       readonly public: {
         readonly models: {
+          readonly BacktestResult: {
+            readonly fields: {
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly finalEquity: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/numeric@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly initialCapital: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/numeric@1' };
+              };
+              readonly maxDrawdownPct: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/numeric@1' };
+              };
+              readonly netReturnPct: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/numeric@1' };
+              };
+              readonly periodEnd: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly periodStart: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly strategyId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly totalTrades: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+            };
+            readonly relations: {
+              readonly strategy: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Strategy';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['strategyId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'BacktestResult';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly finalEquity: { readonly column: 'finalEquity' };
+                readonly id: { readonly column: 'id' };
+                readonly initialCapital: { readonly column: 'initialCapital' };
+                readonly maxDrawdownPct: { readonly column: 'maxDrawdownPct' };
+                readonly netReturnPct: { readonly column: 'netReturnPct' };
+                readonly periodEnd: { readonly column: 'periodEnd' };
+                readonly periodStart: { readonly column: 'periodStart' };
+                readonly strategyId: { readonly column: 'strategyId' };
+                readonly totalTrades: { readonly column: 'totalTrades' };
+              };
+            };
+          };
           readonly InvestorRequirement: {
             readonly fields: {
               readonly amount: {
@@ -1404,6 +1607,26 @@ type ContractBase = Omit<
     readonly executionHash: ExecutionHash;
     readonly mutations: {
       readonly defaults: readonly [
+        {
+          readonly onCreate: {
+            readonly id: 'timestampNow';
+            readonly kind: 'generator';
+            readonly params: { readonly precision: 3 };
+          };
+          readonly ref: {
+            readonly entry: 'BacktestResult';
+            readonly field: 'createdAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'BacktestResult';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
         {
           readonly onCreate: {
             readonly id: 'timestampNow';
