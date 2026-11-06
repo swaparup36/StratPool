@@ -3,15 +3,15 @@ import type { Hash } from 'viem';
 import { http, type Config } from 'wagmi';
 import { waitForTransactionReceipt } from 'wagmi/actions';
 import { mainnet, base, arbitrum, sepolia } from 'wagmi/chains';
-import { SEPOLIA_RPC_URL } from '@/lib/contracts';
+import { RPC_URLS } from '@/lib/contracts';
 
 export const config = getDefaultConfig({
   appName: 'StratPool',
   projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID!,
   chains: [sepolia, mainnet, base, arbitrum],
   transports: {
-    [sepolia.id]: http(SEPOLIA_RPC_URL),
-    [mainnet.id]: http(),
+    [sepolia.id]: http(RPC_URLS[sepolia.id]),
+    [mainnet.id]: http(RPC_URLS[mainnet.id]),
     [base.id]: http(),
     [arbitrum.id]: http(),
   },

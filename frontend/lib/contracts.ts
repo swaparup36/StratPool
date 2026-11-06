@@ -2,13 +2,20 @@ import type { Address } from "viem";
 
 // vaults are per chain. Add a chain's deployer here once it's deployed there.
 export const VAULT_DEPLOYERS: Partial<Record<number, Address>> = {
+  1: "0x4eaEf02f256B2A7Bf72778d6426917863d860D31",
   11155111: "0xc331aEBb92a98506889e616f4Af550CF7590871C",
 };
 
 export const COMMISSION_MANAGER_ADDRESS: Partial<Record<number, Address>> = {
+  1: "0x6A1EfECd00Ffa4339f3938CB84c4b1e161Ade6B9",
   11155111: "0xDF441049F10208f25ae9f5b6de9E4065efC21883",
 };
-export const SEPOLIA_RPC_URL = process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com";
+
+// Every chain in VAULT_DEPLOYERS needs one: viem's default mainnet RPC rate limits, and a failed read breaks the investor pages.
+export const RPC_URLS: Partial<Record<number, string>> = {
+  1: process.env.NEXT_PUBLIC_MAINNET_RPC_URL || "https://ethereum-rpc.publicnode.com",
+  11155111: process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com",
+};
 
 export const vaultDeployerAbi = [
   {

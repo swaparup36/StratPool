@@ -52,6 +52,14 @@ Show P&L on the requirements list
 - Strategized requirements show realized P&L after commission per token (`components/requirement-pnl.tsx`, `lib/pnl.ts`), with symbol and decimals read from the token contract.
 - Applied the contract to the DB with `prisma db update`, fixing the Invest page crash on `deployedAt`; this also dropped the unused `Strategy.isValidated`.
 
+Build subgraph URLs instead of reading them from env
+- `workflow-engine/src/config.ts` picks the subgraph by chain and Uniswap version (`SUBGRAPH_IDS`); removed the `SUBGRAPH_URL_*` env vars. Checked each ID live with the engine's queries. v4 on Sepolia has no known subgraph and fails with a clear error. Replaced the Ethereum v4 ID, whose indexers all failed with indexing errors, with a healthy deployment (`EzLH76…`). `resolvePool` now checks a v4 pool's key against its pool ID, because subgraphs can report a dynamic-fee pool's current fee instead of the key's flag.
+
+Enable Ethereum mainnet for investors
+- Added the deployed mainnet `VaultDeployer` and `CommissionManager` to `lib/contracts.ts`; vault creation, the vault page and requirement posting all follow that map.
+- Replaced `SEPOLIA_RPC_URL` with per-chain `RPC_URLS` (optional `NEXT_PUBLIC_MAINNET_RPC_URL`), because viem's default mainnet RPC rate limits and a failed read breaks the investor pages.
+- Added `INDEXER_START_BLOCK_ETHEREUM`, without which the indexer won't start.
+
 
 
 
