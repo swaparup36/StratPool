@@ -18,46 +18,42 @@ class DB {
       console.log(res.command);
     } catch (error) {
       console.error(error);
-    } finally {
-      await client.end();
     }
   }
 
-  async fetchStrategies(req: Requirement): Promise<Array<Strategy> | void> {
+  async fetchStrategies(req: Requirement): Promise<Strategy[]> {
     const query = `
-      SELECT
-        id,
-        name,
-        description,
-        chain,
-        "tradingType",
-        "tradingPair",
-        protocol,
-        "poolAddress",
-        "acceptedAssets",
-        "minInvestment",
-        "maxInvestment",
-        "riskLevel"
-      FROM strategies
-      WHERE
-        status = 'PUBLISHED'
-        AND "isVerified" = TRUE
-
-        AND chain = $1
-        AND "tradingType" = $2
-        AND "tradingPair" = ANY($3::text[])
-
-        AND $4 = ANY("acceptedAssets")
-
-        AND "minInvestment" <= $5::numeric
-        AND "maxInvestment" >= $5::numeric
-
-        AND CASE "riskLevel"
-            WHEN 'LOW' THEN 1
-            WHEN 'MEDIUM' THEN 2
-            WHEN 'HIGH' THEN 3
-        END <= $6;
-      `;
+    SELECT DISTINCT
+      s.id,
+      s.name,
+      s.description,
+      s.chain,
+      s."tradingType",
+      s."tradingPair",
+      s.protocol,
+      s."poolAddress",
+      s."riskLevel"
+    FROM "Strategy" s
+    JOIN "StrategyAcceptedAsset" a
+      ON a."strategyId" = s.id
+    WHERE
+      s.status = 'PUBLISHED'
+      AND s."isVerified" = TRUE
+      AND s.chain = $1
+      AND s."tradingType" = $2
+      AND s."tradingPair" = ANY($3::text[])
+      AND UPPER(a.symbol) = UPPER($4)
+      AND a."minInvestment" <= $5::numeric
+      AND a."maxInvestment" >= $5::numeric
+      AND (
+        CASE s."riskLevel"
+          WHEN 'LOW' THEN 1
+          WHEN 'MEDIUM' THEN 2
+          WHEN 'HIGH' THEN 3
+          ELSE 999
+        END
+      ) <= $6
+  `;
 
     const riskMap = {
       LOW: 1,
@@ -67,22 +63,28 @@ class DB {
 
     const risk = riskMap[req.preferences.riskLevel];
 
-    try {
-      const res = await client.query(query, [
-        req.investment.chain,
-        req.preferences.tradingType,
-        req.preferences.tradingPairs,
-        req.investment.asset,
-        req.investment.amount,
-        risk,
-      ]);
+    const { rows } = await client.query(query, [
+      req.investment.chain,
+      req.preferences.tradingType,
+      req.preferences.tradingPairs,
+      req.investment.asset,
+      req.investment.amount,
+      risk,
+    ]);
 
-      console.log(res.rowCount);
-      return res.rows as Array<Strategy>;
+    return rows as Strategy[];
+  }
+
+  async fetchReqById(reqId: string): Promise<Requirement | void> {
+    const query = `
+    SELECT * FROM "InvestorRequirement" WHERE id = $1;`;
+
+    try {
+      const res = client.query(query, [reqId]);
+      return (await res).rows[0];
     } catch (error) {
       console.error(error);
-    } finally {
-      await client.end();
+      return;
     }
   }
 }

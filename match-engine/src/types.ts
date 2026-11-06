@@ -17,3 +17,11 @@ export type Strategy = {
   maxInvestment: string;
   riskLevel: "LOW" | "MEDIUM" | "HIGH";
 };
+
+export type RankedStrategy = {
+  strategyId: string;
+  score: number;
+  netReturnPct: number;
+  maxDrawdownPct: number;
+  totalTrades: number;
+};

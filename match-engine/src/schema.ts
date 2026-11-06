@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const envConfigSchema = z.object({
   DB_URI: z.url(),
+  REDIS_URI: z.url(),
 });
 
 export const reqSchema = z.object({
