@@ -570,8 +570,8 @@
                   "codecId": "pg/numeric@1",
                   "kind": "scalar",
                   "typeParams": {
-                    "precision": 36,
-                    "scale": 18
+                    "precision": 78,
+                    "scale": 0
                   }
                 }
               },
@@ -581,8 +581,8 @@
                   "codecId": "pg/numeric@1",
                   "kind": "scalar",
                   "typeParams": {
-                    "precision": 36,
-                    "scale": 18
+                    "precision": 78,
+                    "scale": 0
                   }
                 }
               },
@@ -1179,8 +1179,8 @@
                   "dataType": "pg/numeric",
                   "nullable": true,
                   "typeParams": {
-                    "precision": 36,
-                    "scale": 18
+                    "precision": 78,
+                    "scale": 0
                   }
                 },
                 "minInvestment": {
@@ -1188,8 +1188,8 @@
                   "dataType": "pg/numeric",
                   "nullable": false,
                   "typeParams": {
-                    "precision": 36,
-                    "scale": 18
+                    "precision": 78,
+                    "scale": 0
                   }
                 },
                 "strategyId": {
@@ -1385,7 +1385,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "487fb928bb27977405d1cdda8e965032fe47aa3818e89358d7abb8faf0a48971"
+    "storageHash": "2d45468db629f7297847f4bf6c4eef24a73dee9b7f02df1cef4dcf40306b0dd0"
   },
   "execution": {
     "executionHash": "d528d8a73cd08326b8ce4da0cbed23b3ab49b8a3a880334a0026dfdf6527cdd7",

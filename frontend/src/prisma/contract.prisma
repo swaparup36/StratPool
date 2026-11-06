@@ -78,8 +78,8 @@ model StrategyAcceptedAsset {
   symbol     String
   decimals   Int
 
-  minInvestment Numeric(36, 18)
-  maxInvestment Numeric(36, 18)?
+  minInvestment Numeric(78, 0)
+  maxInvestment Numeric(78, 0)?
 
   strategy Strategy @relation(fields: [strategyId], references: [id])
 

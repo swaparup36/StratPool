@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AuthCard, Field, MessageField, NameFields, SourceField } from "@/components/forms";
+import { AuthCard, Field, MessageField, NameFields } from "@/components/forms";
 
 export const metadata: Metadata = {
   title: "Request a demo",
@@ -12,7 +12,6 @@ export default function RequestDemoPage() {
       <NameFields />
       <Field name="email" label="Work email" type="email" autoComplete="email" />
       <MessageField />
-      <SourceField />
     </AuthCard>
   );
 }

@@ -21,4 +21,8 @@ Build the `/strategies/create` strategy builder (frontend only)
 - Moved min/max investment onto each accepted asset to match the new schema; strategists type each token symbol.
 - Fixed `api/strategies/route.ts`: it runs the same validator as the builder, looks up each token's address and decimals through the LI.FI API (`lib/tokens.ts`), rejects unknown symbols, returns 503 if the API is unavailable, saves `poolAddress`, and creates the strategy and its assets in one nested write.
 
+Help building `/strategies/my` and strategy editing
+- Added the `/strategies/my` list of the user's drafts and published strategies, without the flow graph, with Edit, Publish or Take down, and Delete (confirmed in a modal) actions.
+- `/strategies/edit/[strategy_id]` reuses the builder to change the graph and details; a Save keeps the current status.
+
 

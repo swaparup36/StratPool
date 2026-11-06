@@ -1,3 +1,4 @@
+import { parseUnits } from "viem";
 import { z } from "zod";
 import type { Chain, CreateStrategyPayload } from "@/components/strategy-builder/schema";
 
@@ -47,18 +48,20 @@ export async function resolveAssets(chain: Chain, assets: CreateStrategyPayload[
       errors.push(`No token with symbol ${symbol} exists on ${chain}`);
       continue;
     }
-    for (const amount of [minInvestment, maxInvestment]) {
-      if ((amount?.split(".")[1]?.length ?? 0) > found.decimals) {
+    const toWei = (amount: string) => {
+      if ((amount.split(".")[1]?.length ?? 0) > found.decimals) {
         errors.push(`${found.symbol} supports at most ${found.decimals} decimal places, so ${amount} is too precise`);
+        return "0";
       }
-    }
+      return parseUnits(amount, found.decimals).toString();
+    };
     resolved.push({
       chainId,
       tokenAddress: found.address,
       symbol: found.symbol,
       decimals: found.decimals,
-      minInvestment,
-      maxInvestment,
+      minInvestment: toWei(minInvestment),
+      maxInvestment: maxInvestment === null ? null : toWei(maxInvestment),
     });
   }
 

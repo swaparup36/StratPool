@@ -10,6 +10,7 @@ import {
   ReactFlowProvider,
   reconnectEdge,
   useEdgesState,
+  useNodesInitialized,
   useNodesState,
   useReactFlow,
   type Connection,
@@ -19,9 +20,10 @@ import {
 import "@xyflow/react/dist/style.css";
 import { CheckCircle2, Trash2, X } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useRef, useState, type DragEvent, type KeyboardEvent } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type DragEvent, type KeyboardEvent } from "react";
 import { buttonClass } from "@/components/ui";
-import { createStrategy } from "@/lib/strategies";
+import { createStrategy, updateStrategy } from "@/lib/strategies";
 import { inputClass, MetadataFields, NodeConfig } from "./config-panel";
 import { LIBRARY, NODE_META, nodeTypes, type LibraryItem } from "./nodes";
 import { canConnect, emptyMetadata, reaches, validateStrategy, type MetadataForm, type SaveStatus, type StrategyNode } from "./schema";
@@ -30,7 +32,10 @@ const DRAG_TYPE = "application/stratpool-node";
 const libraryItems = LIBRARY.flatMap((group) => group.items);
 const deleteKeys = ["Backspace", "Delete"];
 
+const fitViewOptions = { maxZoom: 1 };
+
 type SavedStrategy = { name: string; status: SaveStatus };
+export type ExistingStrategy = { id: string; metadata: MetadataForm; nodes: StrategyNode[]; edges: Edge[] };
 
 function NodeLibrary({ onAdd }: { onAdd: (item: LibraryItem) => void }) {
   return (
@@ -72,19 +77,39 @@ function NodeLibrary({ onAdd }: { onAdd: (item: LibraryItem) => void }) {
   );
 }
 
-function Builder({ onSaved }: { onSaved: (saved: SavedStrategy) => void }) {
-  const [nodes, setNodes, onNodesChange] = useNodesState<StrategyNode>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-  const [metadata, setMetadata] = useState<MetadataForm>(emptyMetadata);
+// Continues an existing strategy's numbering, so a new node can't reuse an id.
+function countIds(ids: string[]) {
+  const counts: Record<string, number> = {};
+  for (const id of ids) {
+    const match = /^(.+)_(\d+)$/.exec(id);
+    if (match) counts[match[1]] = Math.max(counts[match[1]] ?? 0, Number(match[2]));
+  }
+  return counts;
+}
+
+function Builder({ existing, onSaved }: { existing?: ExistingStrategy; onSaved: (saved: SavedStrategy) => void }) {
+  const router = useRouter();
+  const [nodes, setNodes, onNodesChange] = useNodesState<StrategyNode>(existing?.nodes ?? []);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(existing?.edges ?? []);
+  const [metadata, setMetadata] = useState<MetadataForm>(existing?.metadata ?? emptyMetadata);
   const [errors, setErrors] = useState<string[]>([]);
-  const [saving, setSaving] = useState<SaveStatus | null>(null);
-  const { screenToFlowPosition, getNode, getEdges, updateNodeData, deleteElements } = useReactFlow<StrategyNode, Edge>();
+  const [saving, setSaving] = useState<SaveStatus | "EDIT" | null>(null);
+  const { screenToFlowPosition, getNode, getEdges, updateNodeData, deleteElements, fitView } = useReactFlow<StrategyNode, Edge>();
+  const nodesMeasured = useNodesInitialized();
+  const fitted = useRef(!existing);
+
+  // Waits for the node sizes, so a saved graph opens with every node in view.
+  useEffect(() => {
+    if (!nodesMeasured || fitted.current) return;
+    fitted.current = true;
+    fitView(fitViewOptions);
+  }, [nodesMeasured, fitView]);
   const canvas = useRef<HTMLDivElement>(null);
-  const counts = useRef<Record<string, number>>({});
+  const [counts] = useState(() => countIds([...(existing?.nodes ?? []), ...(existing?.edges ?? [])].map((item) => item.id)));
 
   const nextId = (prefix: string) => {
-    counts.current[prefix] = (counts.current[prefix] ?? 0) + 1;
-    return `${prefix}_${counts.current[prefix]}`;
+    counts[prefix] = (counts[prefix] ?? 0) + 1;
+    return `${prefix}_${counts[prefix]}`;
   };
 
   const addNode = (item: LibraryItem, position: XYPosition) => {
@@ -124,15 +149,20 @@ function Builder({ onSaved }: { onSaved: (saved: SavedStrategy) => void }) {
   const onReconnect = (oldEdge: Edge, connection: Connection) =>
     setEdges((current) => reconnectEdge(oldEdge, connection, current, { shouldReplaceId: false }));
 
-  const save = async (status: SaveStatus) => {
-    const result = validateStrategy({ ...metadata, status }, nodes, edges);
+  const save = async (status: SaveStatus | "EDIT") => {
+    const result = validateStrategy(status === "EDIT" ? metadata : { ...metadata, status }, nodes, edges);
     if (!result.ok) return setErrors(result.errors);
 
     setErrors([]);
     setSaving(status);
     try {
-      await createStrategy(result.payload);
-      onSaved({ name: result.payload.name, status });
+      if (existing) {
+        await updateStrategy(existing.id, result.payload);
+        router.push("/strategies/my");
+      } else {
+        await createStrategy(result.payload);
+        onSaved({ name: result.payload.name, status: result.payload.status });
+      }
     } catch (e) {
       setErrors([e instanceof Error ? e.message : "Failed to create strategy"]);
       setSaving(null);
@@ -164,12 +194,20 @@ function Builder({ onSaved }: { onSaved: (saved: SavedStrategy) => void }) {
           onChange={(e) => setMetadata((m) => ({ ...m, name: e.target.value }))}
         />
         <div className="ml-auto flex gap-2">
-          <button className={`${buttonClass("secondary")} disabled:opacity-60`} type="button" disabled={!!saving} onClick={() => save("DRAFT")}>
-            {saving === "DRAFT" ? "Saving…" : "Save as Draft"}
-          </button>
-          <button className={`${buttonClass()} disabled:opacity-60`} type="button" disabled={!!saving} onClick={() => save("PUBLISHED")}>
-            {saving === "PUBLISHED" ? "Publishing…" : "Publish"}
-          </button>
+          {existing ? (
+            <button className={`${buttonClass()} disabled:opacity-60`} type="button" disabled={!!saving} onClick={() => save("EDIT")}>
+              {saving ? "Saving…" : "Save"}
+            </button>
+          ) : (
+            <>
+              <button className={`${buttonClass("secondary")} disabled:opacity-60`} type="button" disabled={!!saving} onClick={() => save("DRAFT")}>
+                {saving === "DRAFT" ? "Saving…" : "Save as Draft"}
+              </button>
+              <button className={`${buttonClass()} disabled:opacity-60`} type="button" disabled={!!saving} onClick={() => save("PUBLISHED")}>
+                {saving === "PUBLISHED" ? "Publishing…" : "Publish"}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -262,7 +300,7 @@ function Builder({ onSaved }: { onSaved: (saved: SavedStrategy) => void }) {
   );
 }
 
-export function StrategyBuilder() {
+export function StrategyBuilder({ existing }: { existing?: ExistingStrategy }) {
   const [saved, setSaved] = useState<SavedStrategy | null>(null);
 
   // Leaving the builder after a save stops a second click from creating a duplicate.
@@ -289,7 +327,7 @@ export function StrategyBuilder() {
 
   return (
     <ReactFlowProvider>
-      <Builder onSaved={setSaved} />
+      <Builder existing={existing} onSaved={setSaved} />
     </ReactFlowProvider>
   );
 }

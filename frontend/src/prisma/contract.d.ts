@@ -23,7 +23,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'487fb928bb27977405d1cdda8e965032fe47aa3818e89358d7abb8faf0a48971'>;
+  StorageHashBase<'2d45468db629f7297847f4bf6c4eef24a73dee9b7f02df1cef4dcf40306b0dd0'>;
 export type ExecutionHash =
   ExecutionHashBase<'d528d8a73cd08326b8ce4da0cbed23b3ab49b8a3a880334a0026dfdf6527cdd7'>;
 export type ProfileHash =
@@ -775,14 +775,14 @@ type ContractBase = Omit<
                   readonly dataType: 'pg/numeric';
                   readonly codecId: 'pg/numeric@1';
                   readonly nullable: true;
-                  readonly typeParams: { readonly precision: 36; readonly scale: 18 };
+                  readonly typeParams: { readonly precision: 78; readonly scale: 0 };
                   readonly many: false;
                 };
                 readonly minInvestment: {
                   readonly dataType: 'pg/numeric';
                   readonly codecId: 'pg/numeric@1';
                   readonly nullable: false;
-                  readonly typeParams: { readonly precision: 36; readonly scale: 18 };
+                  readonly typeParams: { readonly precision: 78; readonly scale: 0 };
                   readonly many: false;
                 };
                 readonly strategyId: {
@@ -1180,7 +1180,7 @@ type ContractBase = Omit<
                 readonly type: {
                   readonly kind: 'scalar';
                   readonly codecId: 'pg/numeric@1';
-                  readonly typeParams: { readonly precision: 36; readonly scale: 18 };
+                  readonly typeParams: { readonly precision: 78; readonly scale: 0 };
                 };
               };
               readonly minInvestment: {
@@ -1188,7 +1188,7 @@ type ContractBase = Omit<
                 readonly type: {
                   readonly kind: 'scalar';
                   readonly codecId: 'pg/numeric@1';
-                  readonly typeParams: { readonly precision: 36; readonly scale: 18 };
+                  readonly typeParams: { readonly precision: 78; readonly scale: 0 };
                 };
               };
               readonly strategyId: {

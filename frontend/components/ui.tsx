@@ -6,6 +6,7 @@ import { Icon, type IconName } from "./icon";
 const buttonVariants = {
   primary: "border-accent-hover bg-accent text-on-accent hover:bg-accent-hover",
   secondary: "bg-surface-2 hover:bg-surface-3",
+  danger: "border-red-700 bg-red-600 text-white hover:bg-red-700",
 };
 const buttonSizes = { md: "h-9 px-[18px]", sm: "h-8 px-3.5" };
 
