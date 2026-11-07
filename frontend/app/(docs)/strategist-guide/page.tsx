@@ -91,9 +91,9 @@ export default function StrategistGuidePage() {
                 <li>To remove a block or connection, select it and press Delete, or use the button in the panel.</li>
               </ol>
               {/* IMAGE: add public/img/docs/builder-flow.png. Builder with this flow: Every 1h trigger -> RSI(14), EMA(20), SMA(50); RSI < 30 and EMA crosses above SMA (inputs A and B) -> AND -> BUY 50%. */}
-              <Screenshot src="/img/docs/builder-flow.png" alt="A finished flow where RSI below 30 and EMA crossing above SMA feed an AND block that buys with 50 percent of capital" caption="This flow buys with 50% of capital when RSI(14) is below 30 and EMA(20) crosses above SMA(50)." />
+              <Screenshot src="/img/docs/builder-flow.png" alt="A finished flow where RSI below 30 and EMA crossing above SMA feed an AND block that buys with 50 percent of capital" caption="This flow buys with 100% of capital when SMA(9) crosses SMA(21) and sells 100% of capital when SMA(9) crosses below SMA(21)." />
               {/* IMAGE: add public/img/docs/builder-node.png. Same flow as builder-flow.png with the RSI(14) block selected, so the right panel shows its options. */}
-              <Screenshot src="/img/docs/builder-empty.png" alt="The RSI block selected on the canvas with its indicator, period and timeframe options in the right panel" caption="Selecting a block opens its options." />
+              <Screenshot src="/img/docs/builder-empty-og.png" alt="The RSI block selected on the canvas with its indicator, period and timeframe options in the right panel" caption="Selecting a block opens its options." />
               <Callout title="Comparing two indicators">
                 Set a condition&apos;s <strong>Compare to</strong> option to <strong>Another indicator</strong>. It gains inputs A and B. Connect one indicator to each.
               </Callout>
