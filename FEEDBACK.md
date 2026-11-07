@@ -1,0 +1,1 @@
+We genuinely find Uniswap APIs to be the most easy of all tools to work with. And another factor that made me more happy was how helpful the attendees at ETHGlobal Mumbai 2026 were at the Uniswap booth trying their best to help and taking interest with excitement infused into people building on their service. 
