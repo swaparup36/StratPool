@@ -5,7 +5,7 @@ class DB {
   async createIndex() {
     const query = `
       CREATE INDEX IF NOT EXISTS idx_strategy_matching
-        ON strategies (
+        ON "Strategy" (
             chain,
             "tradingType",
             "tradingPair"
@@ -18,6 +18,21 @@ class DB {
       console.log(res.command);
     } catch (error) {
       console.error(error);
+    }
+  }
+
+  async fetchStrategyById(strategyId: string): Promise<any> {
+    try {
+      const res = await client.query(
+        `
+        SELECT * FROM "Strategy" WHERE id = $1;`,
+        [strategyId],
+      );
+
+      return res.rows[0];
+    } catch (error) {
+      console.error(error);
+      return;
     }
   }
 
@@ -36,7 +51,7 @@ class DB {
         "minInvestment",
         "maxInvestment",
         "riskLevel"
-      FROM Strategy
+      FROM "Strategy"
       WHERE
         status = 'PUBLISHED'
         AND "isVerified" = TRUE
@@ -79,6 +94,19 @@ class DB {
       return res.rows as Array<Strategy>;
     } catch (error) {
       console.error(error);
+    }
+  }
+
+  async markStrategyVerified(strategyId: string) {
+    try {
+      const res = await client.query(`
+        UPDATE "Strategy" SET "isVerified" = TRUE WHERE id = $1;`, [strategyId]);
+
+      console.log(res.rowCount);
+      return res.rowCount;
+    } catch (error) {
+      console.error(error);
+      return;
     }
   }
 }

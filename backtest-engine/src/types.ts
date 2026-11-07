@@ -16,6 +16,7 @@ export type Strategy = {
   minInvestment: string;
   maxInvestment: string;
   riskLevel: "LOW" | "MEDIUM" | "HIGH";
+  isVerified: boolean;
 };
 
 export type TriggerNode = {

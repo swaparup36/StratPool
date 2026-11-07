@@ -1,6 +1,7 @@
 import type { StrategyGraph, Candle, BacktestResult } from "../types.js";
 import { interpretStrategy } from "./graph/interpreter.js";
-import { simulateTrade, type Portfolio } from "./simulator.js";
+import { simulateTrade } from "./simulator.js";
+import type { Portfolio } from "../types.js";
 
 export function runBacktest(
   graph: StrategyGraph,
