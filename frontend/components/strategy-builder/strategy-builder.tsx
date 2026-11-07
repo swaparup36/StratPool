@@ -184,7 +184,7 @@ function Builder({ existing, onSaved }: { existing?: ExistingStrategy; onSaved: 
   const selectedEdge = edges.find((e) => e.selected);
 
   return (
-    <div className="flex flex-col xl:h-[calc(100svh-65px)]">
+    <div className="flex flex-col xl:h-[calc(100svh-73px)]">
       <div className="flex flex-wrap items-center gap-2 border-b p-3">
         <input
           className={`${inputClass} min-w-48 flex-1 xl:max-w-md`}
@@ -306,7 +306,7 @@ export function StrategyBuilder({ existing }: { existing?: ExistingStrategy }) {
   // Leaving the builder after a save stops a second click from creating a duplicate.
   if (saved) {
     return (
-      <div className="grid min-h-[calc(100svh-65px)] place-items-center p-6 text-center" role="status">
+      <div className="grid min-h-[calc(100svh-73px)] place-items-center p-6 text-center" role="status">
         <div>
           <CheckCircle2 className="mx-auto size-8 text-accent" aria-hidden />
           <h1 className="mt-3 text-[24px] tracking-[-.02em] break-words">

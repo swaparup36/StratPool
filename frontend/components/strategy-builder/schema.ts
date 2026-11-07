@@ -8,7 +8,7 @@ export const OPERATORS = ["GREATER_THAN", "LESS_THAN", "CROSS_ABOVE", "CROSS_BEL
 export const REFERENCE_TYPES = ["VALUE", "INDICATOR"] as const;
 export const LOGIC_OPERATORS = ["AND", "OR"] as const;
 export const ACTIONS = ["BUY", "SELL", "HOLD"] as const;
-export const CHAINS = ["ETHEREUM", "BASE", "ARBITRUM", "SEPOLIA"] as const;
+export const CHAINS = ["ETHEREUM", "BASE", "SEPOLIA"] as const;
 export const TRADING_TYPES = ["SPOT", "PERPETUALS"] as const;
 export const RISK_LEVELS = ["LOW", "MEDIUM", "HIGH"] as const;
 
@@ -159,7 +159,7 @@ export const emptyAsset: AssetForm = { symbol: "", minInvestment: "", maxInvestm
 export const emptyMetadata: MetadataForm = {
   name: "",
   description: "",
-  chain: "ARBITRUM",
+  chain: "ETHEREUM",
   tradingType: "SPOT",
   tradingPair: "",
   protocol: "",

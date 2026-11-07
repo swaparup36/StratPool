@@ -70,7 +70,7 @@ export function MatchMock() {
       <div className="grid w-full items-center justify-items-center gap-4 md:grid-cols-[1fr_auto_1fr]">
         <div className="grid w-full justify-items-center md:justify-items-end">
           <Card title="Investor requirements">
-            <Field label="Chain" value="Arbitrum" />
+            <Field label="Chain" value="Base" />
             <Field label="Trading type" value="Spot" />
             <Field label="Pair" value="ETH/USDC" />
             <Field label="Risk" value="Moderate" />
@@ -79,7 +79,7 @@ export function MatchMock() {
         <Icon name="right" className="rotate-90 text-2xl text-accent md:rotate-0" />
         <div className="grid w-full justify-items-center md:justify-items-start">
           <Card title="ETH/USDC Momentum" badge="Best match">
-            <Field label="Chain" value="Arbitrum" />
+            <Field label="Chain" value="Base" />
             <Field label="Trading type" value="Spot" />
             <Field label="Accepts" value="USDC, ETH" />
             <Field label="Rating" value="4.6 / 5" />
@@ -94,7 +94,7 @@ export function MatchMock() {
 export function PublishMock() {
   return (
     <Card title="New strategy">
-      <Field label="Chain" value="Arbitrum" />
+      <Field label="Chain" value="Base" />
       <Field label="Pair" value="ETH/USDC" />
       <Field label="Pool" value="ETH/USDC 0.05%" />
       <Field label="Accepted assets" value="USDC, ETH" />
@@ -120,8 +120,8 @@ export function VaultMock() {
   return (
     <Card title="Deposit to vault">
       <Field label="Your asset" value="USDC on Ethereum" />
-      <Field label="Strategy runs on" value="Arbitrum" />
-      <Note icon="alert">Bridge USDC to Arbitrum to continue</Note>
+      <Field label="Strategy runs on" value="Base" />
+      <Note icon="alert">Bridge USDC to Base to continue</Note>
     </Card>
   );
 }

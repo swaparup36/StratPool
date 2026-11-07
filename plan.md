@@ -60,6 +60,28 @@ Enable Ethereum mainnet for investors
 - Replaced `SEPOLIA_RPC_URL` with per-chain `RPC_URLS` (optional `NEXT_PUBLIC_MAINNET_RPC_URL`), because viem's default mainnet RPC rate limits and a failed read breaks the investor pages.
 - Added `INDEXER_START_BLOCK_ETHEREUM`, without which the indexer won't start.
 
+MCP server for agents to post investor requirements
+- `POST /api/mcp`: stateless MCP endpoint (`@modelcontextprotocol/sdk`) with one tool, `post_investor_requirement`. The investor comes from the access token, never from tool input.
+- Moved the posting logic into `lib/post-requirement.ts`, used by both the web route and the tool.
+- Agents authenticate with OAuth (PKCE, dynamic registration, `.well-known` metadata, `lib/oauth.ts`): the MCP client opens `/oauth/authorize`, where the investor logs in and approves with a wallet signature.
+- Codes (5 min, single use) and access tokens (30 days) are stored hashed in Redis (`lib/mcp-tokens.ts`), so there is no schema change. "Connect agent" on the Invest page shows the server URL and disconnects all agents.
+- Added `APP_DOMAIN` to `allowedDevOrigins`, because `next dev` behind a tunnel blocked its dev resources and the authorize page never became interactive; the login form also keeps the OAuth params if submitted before hydration.
+- Note: `prisma db update` wants to drop the match engine's `idx_strategy_matching`, which isn't in the contract.
+
+Navbar menus and documentation pages
+- Made the navbar taller and wider, and moved its mobile breakpoint to `xl` so the longer labels fit; the links now come from `content/docs.ts`. Updated the `65px` header offsets to `73px`.
+- Added `(docs)` routes: `/how-it-works`, `/investor-guide`, `/strategist-guide`, `/mcp-server-guide`
+
+Support the Sepolia, Ethereum and Base deployments across the app
+- Checked the given addresses against the broadcast files and on-chain code. Sepolia and Ethereum were already wired up.
+- Added Base's `VaultDeployer`, `CommissionManager` and RPC (optional `NEXT_PUBLIC_BASE_RPC_URL`) to `lib/contracts.ts` and `wagmi.ts`; vault creation, the vault page and requirement posting follow those maps.
+- Added `RPC_URL_BASE`, `COMMISSION_MANAGER_BASE` and `INDEXER_START_BLOCK_BASE` to the workflow engine's env; `src/config.ts` already handled Base.
+- Updated the docs. Removed Arbitrum, which has no contracts, from the frontend and workflow engine (no saved data used it); the match and backtest engines never referenced it.
+
+Fix "Invalid signature" on login
+- The server only accepted SIWE messages for `APP_DOMAIN`, so opening the app on any other host, such as localhost with `APP_DOMAIN` set to the tunnel, failed with this error even though the signature was valid.
+- `lib/siwe.ts` now checks the domain for login and agent approval: `APP_DOMAIN` only in production, plus localhost in development. A wrong host gets its own error naming the right one.
+
 
 
 

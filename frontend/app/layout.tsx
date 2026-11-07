@@ -14,7 +14,7 @@ const geist = localFont({
 });
 
 export const metadata: Metadata = {
-  title: { default: "StratPool — The DeFi strategy marketplace", template: "%s — StratPool" },
+  title: { default: "StratPool - The DeFi strategy marketplace", template: "%s - StratPool" },
   description:
     "StratPool connects strategists who publish DeFi trading strategies with investors who provide the capital, then automates execution.",
 };

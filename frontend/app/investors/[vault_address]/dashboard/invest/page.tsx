@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 import { formatUnits } from "viem";
+import { ConnectAgent } from "@/components/connect-agent";
 import { PostRequirement } from "@/components/post-requirement";
 import { RequirementPnl } from "@/components/requirement-pnl";
 import { CHAINS, type Chain } from "@/components/strategy-builder/schema";
 import { Tag } from "@/components/ui";
 import { getInvestorVault } from "@/lib/investor";
+import { hasAgentConnection } from "@/lib/mcp-tokens";
 import { getSession } from "@/lib/session";
 import { CHAIN_IDS, findToken } from "@/lib/tokens";
 import { db } from "@/src/prisma/db";
@@ -15,7 +17,7 @@ export const metadata: Metadata = { title: "Invest" };
 
 const statusLabels = { OPEN: "Open", MATCHED: "Matched", CLOSED: "Closed" };
 
-// One lookup per token per render. The table stores no decimals, so a failed lookup can't be converted and shows wei.
+// token decimal lookup is cached to avoid repeated calls to the token registry, which can be slow and rate-limited
 const tokenDecimals = cache(async (chain: string, asset: string) => {
   const token = await findToken(CHAIN_IDS[chain as Chain], asset).catch(() => null);
   return token?.decimals ?? null;
@@ -31,6 +33,9 @@ export default async function InvestPage({ params }: { params: Promise<{ vault_a
   if (!session.userId) redirect("/sign-in");
   const { vault_address } = await params;
   const { chainId } = await getInvestorVault(vault_address);
+
+  // Tokens can't be checked while Redis is down either, so no agent is connected at that point.
+  const agentConnected = await hasAgentConnection(session.userId).catch(() => false);
 
   const requirements = await db.orm.public.InvestorRequirement.where({ investorId: session.userId })
     .orderBy((r) => r.createdAt.desc())
@@ -54,7 +59,10 @@ export default async function InvestPage({ params }: { params: Promise<{ vault_a
     <section className="grid gap-6 p-6 md:p-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-[24px] tracking-[-.02em]">My requirements</h1>
-        <PostRequirement defaultChain={CHAINS.find((chain) => CHAIN_IDS[chain] === chainId)} />
+        <div className="flex flex-wrap gap-2">
+          <ConnectAgent connected={agentConnected} />
+          <PostRequirement defaultChain={CHAINS.find((chain) => CHAIN_IDS[chain] === chainId)} />
+        </div>
       </div>
 
       {requirements.length === 0 ? (

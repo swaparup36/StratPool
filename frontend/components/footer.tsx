@@ -9,7 +9,7 @@ export function Footer() {
         <div className="flex flex-wrap items-center justify-between gap-6">
           <Logo />
           <nav className="flex flex-wrap gap-6 text-sm text-muted [&_a]:hover:text-fg" aria-label="Footer">
-            <a href="#">Docs</a>
+            <Link href="/how-it-works">Docs</Link>
             <a href="#">Help</a>
             <Link href="/privacy-policy">Privacy Policy</Link>
             <Link href="/terms">Terms</Link>

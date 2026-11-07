@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { requirementSchema } from "./requirements";
+import { z } from "zod";
+import { requirementFields, requirementSchema } from "./requirements";
 
 const valid = {
   amount: " 100.5 ",
@@ -38,5 +39,8 @@ rejects({ durationUnit: null });
 rejects({ durationValue: 0 });
 rejects({ durationValue: 1.5 });
 assert.equal(requirementSchema.safeParse(null).success, false);
+
+// the MCP SDK parses with these fields before postRequirement parses again, so a second parse must not change the result
+assert.deepEqual(requirementSchema.parse(z.object(requirementFields).parse(valid)), requirementSchema.parse(valid));
 
 console.log("requirement checks passed");

@@ -15,7 +15,7 @@ export default async function InvestorDashboardLayout({
 
   const dashboard = `/investors/${vault_address}/dashboard`;
   return (
-    <div className="flex min-h-[calc(100svh-65px)] max-md:flex-col">
+    <div className="flex min-h-[calc(100svh-73px)] max-md:flex-col">
       <Sidebar
         label="Investor dashboard"
         links={[

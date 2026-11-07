@@ -2,7 +2,7 @@ import { parseUnits } from "viem";
 import { z } from "zod";
 import type { Chain, CreateStrategyPayload } from "@/components/strategy-builder/schema";
 
-export const CHAIN_IDS: Record<Chain, number> = { ETHEREUM: 1, BASE: 8453, ARBITRUM: 42161, SEPOLIA: 11155111 };
+export const CHAIN_IDS: Record<Chain, number> = { ETHEREUM: 1, BASE: 8453, SEPOLIA: 11155111 };
 
 const TOKEN_API = "https://li.quest/v1/token";
 

@@ -17,7 +17,7 @@ export function useWalletAuth(mode: 'signup' | 'login', onAuthenticated: () => v
 
   useEffect(() => {
     if (connectModalOpen && isConnected && !chain) {
-      setError('Switch your wallet to Ethereum, Base, Arbitrum or Sepolia, then try again');
+      setError('Switch your wallet to Ethereum, Base or Sepolia, then try again');
       disconnect();
     }
   }, [connectModalOpen, isConnected, chain]);

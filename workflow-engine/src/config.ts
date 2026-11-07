@@ -12,7 +12,6 @@ export const env = parsed.data;
 const CHAINS = {
   ETHEREUM: { name: "ethereum-mainnet", id: 1 },
   BASE: { name: "ethereum-mainnet-base-1", id: 8453 },
-  ARBITRUM: { name: "ethereum-mainnet-arbitrum-1", id: 42161 },
   SEPOLIA: { name: "ethereum-testnet-sepolia", id: 11155111 },
 } as const;
 
@@ -20,7 +19,6 @@ const CHAINS = {
 const SUBGRAPH_IDS: Record<string, Partial<Record<3 | 4, string>>> = {
   ETHEREUM: { 3: "5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV", 4: "EzLH76FWsZUSBTfp2P6CV7cqN56e1rSt2uWtqtsUMEeb" },
   BASE: { 3: "43Hwfi3dJSoGpyas9VwNoDAv55yjgGrPpNSmbQZArzMG", 4: "Gqm2b5J85n1bhCyDMpGbtbVn4935EvvdyHdHrx3dibyj" },
-  ARBITRUM: { 3: "FbCGRftH4a3yZugY7TnbYgPJVEv2LvMT6oF1fxPe9aJM", 4: "D1VHPU6cXXSC8eaApWCjCnPcTZQFSYCpGoDAvt4ogDWh" },
   SEPOLIA: { 3: "EDJCBpDBGBajTP1x3qLGLg3ZaVR5Q2TkNxyNHdCuryex" },
 };
 

@@ -3,7 +3,7 @@ import { Sidebar } from "@/components/sidebar";
 
 export default function StrategiesLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-[calc(100svh-65px)] max-md:flex-col">
+    <div className="flex min-h-[calc(100svh-73px)] max-md:flex-col">
       <Sidebar
         label="Strategies"
         links={[

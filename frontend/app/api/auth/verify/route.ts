@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { parseSiweMessage } from 'viem/siwe';
 import { getSession } from '@/lib/session';
+import { isAppDomain, wrongDomainError } from '@/lib/siwe';
 import { clients } from '@/lib/viem';
 import { db } from '@/src/prisma/db';
 
@@ -31,12 +32,13 @@ export async function POST(req: Request) {
     const parsed = parseSiweMessage(message);
     const client = parsed.chainId ? clients[parsed.chainId] : undefined;
     if (!client || !parsed.address) return fail('Unsupported chain', 400);
+    if (!isAppDomain(parsed.domain)) return fail(wrongDomainError(), 401);
 
     const valid = await client.verifySiweMessage({
       message,
       signature: signature as `0x${string}`,
       nonce,
-      domain: process.env.APP_DOMAIN!,
+      domain: parsed.domain,
     });
     if (!valid) return fail('Invalid signature', 401);
 
